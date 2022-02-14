@@ -4,6 +4,9 @@
 
     class Stats {
 
+        private $groups = array();
+        private $files = array();
+
         private $loc = 0;                           // --loc
         private $comments = 0;                      // --comments
         private $labels = 0;                        // --labels
@@ -14,65 +17,37 @@
         
         private $labelIds = array();
         private $jumpDestinations = array();
-
-        private $locEnabled = false;                
-        private $commentsEnabled = false;
-        private $labelsEnabled = false;
-        private $jumpsEnabled = false;
-        private $fwjumpsEnabled = false;
-        private $backjumpsEnabled = false;
-        private $badjumpsEnabled = false;
         
-        private $groups = array();
-        private $files = array();
-
-        public function enParameters() {
-            foreach ($this->groups as $group) {
-                foreach ($group as $str) {
-                    $this->{$str . "Enabled"} = true;
-                }
-            }
+        /**
+         * Pushes array to stats groups array
+         * 
+         * @param array $group new stats group
+         */
+        public function addToGroups($group) {
+            array_push($this->groups, $group);
         }
 
-        public function incInstructions() {
-            if ($this->locEnabled)
-                $this->loc++;
+        /**
+         * Extracts filename from *--stats=...*,
+         * pushes new file into files array
+         * 
+         * @param array $file new file name
+         */
+        public function addToFiles($file) {
+            array_push($this->files, substr($file, 8));
+        }
+
+        public function setInstructions($count) {
+            $this->loc = $count - 1;
         }
 
         public function incComments() {
-            if ($this->commentsEnabled)
-                $this->comments++;
-        }
-
-        public function incLabels() {
-            if ($this->labelsEnabled)
-                $this->labels++;
-        }
-
-        public function incFwJumps() {
-            if ($this->fwjumpsEnabled) 
-                $this->fwjumps++;
-        }
-
-        public function incBackJumps() {
-            if ($this->backjumpsEnabled)
-                $this->backjumps++;
-            
-            if ($this->jumpsEnabled) 
-                $this->jumps++;
-        }
-
-        public function incBadJumps() {
-            if ($this->badjumpsEnabled)
-                $this->badjumps++;
-
-            if ($this->jumpsEnabled) 
-                $this->jumps++;
+            $this->comments++;
         }
         
         public function addLabel($label) {
             if (array_search($label, $this->labelIds) == true) 
-                return;
+                exit(ERR_SYNTAX);
             array_push($this->labelIds, $label);
         }
 
@@ -80,24 +55,22 @@
             array_push($this->jumpDestinations, $label);
             if (array_search($label, $this->labelIds) == true) {
                 $this->backjumps++;
-
             }
         }
 
-        public function addToGroups($group) {
-            array_push($this->groups, $group);
+        public function setJumpsAndLabels() {
+            $this->jumps = count($this->jumpDestinations);
+            $this->labels = count($this->labelIds);
+            foreach ($this->jumpDestinations as $jump) {
+                if (!array_search($jump, $this->labelIds)) 
+                    $this->badjumps++;
+            }
+            $this->fwjumps = $this->jumps - $this->badjumps - $this->backjumps;
         }
 
-        public function addToFiles($argument) {
-            array_push($this->files, substr($argument, 8));
-        }
-
-        // debugging reasons -- RM later
-        public function echoStats() {
-            var_dump($this->groups);
-            var_dump($this->files);
-        }
-
+        /**
+         * Prints all stats groups to corresponding files
+         */
         public function writeStats() {
             // check if there are duplicates in files array
             if (count($this->files) != count(array_unique($this->files)))

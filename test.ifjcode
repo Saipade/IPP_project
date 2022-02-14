@@ -251,7 +251,8 @@ CALL $write
 LABEL $main$1$if$end
 LABEL $main$ret
 POPFRAME
-RETURN
-LABEL $over$main
+RETURN #fsdf
+#LABEL $over$main #gdfgdfg
 CREATEFRAME
 CALL $main
+# vsego - 256 instrukcí

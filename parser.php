@@ -53,7 +53,6 @@
 
             }
             $this->stats->addToGroups($tmpArray);
-            $this->stats->enParameters();
         }
 
         /**
@@ -113,6 +112,22 @@
             array_push($this->code, $instruction);
             $this->currentLine++;
         }
+        
+        /**
+         * Counts labels, all types of jumps according to $code array
+         */
+        public function makeupStats() {
+            $this->stats->setInstructions($this->currentLine);
+            foreach ($this->code as $instruction) {
+                if (preg_match(jumpPattern, $instruction->getOpCode())) 
+                    $this->stats->addJump($instruction->getArg(0));
+                
+                elseif ($instruction->getOpCode() == "LABEL") 
+                    $this->stats->addLabel($instruction->getArg(0));
+                
+            }
+            $this->stats->setJumpsAndLabels();
+        }
 
         /**
          * Creates all Instruction elements based on $code array
@@ -123,7 +138,6 @@
         public function convertToXML(DOMdocument $xml, DOMElement $program) {
             foreach($this->code as $instruction)
                 $instruction->makeXMLInstruction($xml, $program);
-            
         }
 
     }

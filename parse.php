@@ -12,14 +12,17 @@
 
     $parser->parseArgs($argc, $argv);
     $parser->parseCode();
+
+    $parser->makeupStats();
+    $parser->stats->writeStats();
+
     $xml = new DomDocument('1.0', 'UTF-8');
     $xml->formatOutput = true;
     $program = $xml->createElement('program');
     $program->setAttribute('language', 'IPPcode22');
     $xml->appendChild($program);
     $parser->convertToXML($xml, $program);
-    echo $xml;
-
-    $parser->stats->writeStats();
+    $formattedXML = $xml->saveXML();
+    echo $formattedXML;
 
 ?>

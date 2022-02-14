@@ -4,11 +4,12 @@
  * Subject: IPP - Principles of Programming Languages
  * @author Maksim Tikhonov (xtikho00)
  * 
- * File contains classes for code representation
+ * File contains Insruction class for internal representation of input code
  */
 
     include 'regex.php';
     include 'sets.php';
+    include 'argument.php';
 
     /**
      * Represents every meaningful line of code
@@ -16,11 +17,13 @@
     class Instruction {
 
         private $opCode;                            // operation code attribute
-        private $arguments = array();               // arguments (string -> Argument's subclasses)
-        private $argumentsA = array();              //
+        private $arguments = array();               // arguments as strings from input line
+        private $argumentsA = array();              // arguments as objects (transformed from string form)
         private $order;                             // order attribute
+        private $argFactory;                        // object for argument creation
 
         public function __construct($line, $lineNumber) {
+            $this->argFactory = new ArgumentFactory();
             $explodedLine = explode(" ", $line);
             $this->opCode = strtoupper($explodedLine[0]);
             $this->arguments = array_slice($explodedLine, 1);
@@ -49,9 +52,9 @@
                 exit(ERR_SYNTAX);
 
             foreach ($instructionSet[$this->opCode] as $index => $argumentType) {
-                // see instructionSet array; creates objects of arguments according to given operation code and refills $arguments array
+                // see instructionSet array; creates objects of arguments according to given operation code and fills $argumentsA array
                 // e.g. for 'JUMPIFNEQ' operation code 3 objects will be created -- of Label, Symbol and Symbol classes
-                $this->argumentsA[$index] = new $argumentType($this->arguments[$index]);
+                $this->argumentsA[$index] = $this->argFactory->createArgument($argumentType, $this->arguments[$index]);
             }    
         }
 
@@ -62,7 +65,7 @@
          * @param DOMElement $program root element of DOMdocument
          */
         public function makeXMLInstruction(DOMdocument $xml, DOMElement $program) {
-            $instructionXML = $xml->createElement('Instruction');
+            $instructionXML = $xml->createElement('instruction');
             $instructionXML->setAttribute('order', $this->order);
             $instructionXML->setAttribute('opcode', $this->opCode);
             for ($i = 0; $i < count($this->arguments); $i++) {
@@ -72,121 +75,15 @@
             }
             $program->appendChild($instructionXML);
         }
-        
-    }
 
-    /**
-     * Abstract class for all nonterminal symbols used as intructions' arguments
-     */
-    abstract class Argument {
-
-        private $type;                            // type attribute
-        private $value;                           // string value
-
-        abstract public function __construct($id);
-
-        public function getType() {
-            return $this->type;
+        public function getOpCode() {
+            return $this->opCode;
         }
 
-        public function getValue() {
-            return $this->value;
+        public function getArg($index) {
+            return $this->arguments[$index];
         }
         
-    }
-
-    /**
-     * Class representing <var> nonterminal
-     */
-    class Variable extends Argument {
-
-        public function __construct($id) {
-            $id = explode("@", $id, 2);
-            if (!preg_match(varPattern, $id[1]))
-                exit(ERR_SYNTAX);
-            $this->type = "var";
-            $this->value = $id[0] . "@" . $id[1];
-        }
-
-    }
-
-    /**
-     * Class representing <symb> nonterminal; can be either constant or variable
-     */
-    class Symbol extends Argument {
-
-        public function __construct($id) {
-            $id = explode("@", $id, 2);
-            switch ($id[0]) {
-                // variable
-                case "TF":
-                case "GF":
-                case "LF":
-                    if (!preg_match(varPattern, $id[1]))
-                        exit(ERR_SYNTAX);
-                    $this->type = "var";
-                    break;
-                // const int
-                case "int":
-                    if (!preg_match(intPattern, $id[1]))
-                        exit(ERR_SYNTAX);
-                    $this->type = "int";
-                    break;
-                // const bool
-                case "bool":
-                    if (!preg_match(boolPattern, $id[1]))
-                        exit(ERR_SYNTAX);
-                    $this->type = "bool";
-                    break;
-                // const nil
-                case "nil":
-                    if (!preg_match(nilPattern, $id[1]))
-                        exit(ERR_SYNTAX);
-                    $this->type = "nil";
-                    break;
-                // const string
-                case "string":
-                    if (!preg_match(stringPattern, $id[1]))
-                        exit(ERR_SYNTAX);
-                    $this->type = "string";
-                    break;
-
-                default:
-                    exit(ERR_SYNTAX);
-            }
-            $this->value = $id[0] . "@" . $id[1];
-        }
-
-    }
-
-    /**
-     * Class representing <label> nonterminal
-     */
-    class Label extends Argument {
-
-        public function __construct($id) {
-            if (!preg_match(lablePattern, $id))
-                exit(ERR_SYNTAX);
-            $this->type = "label";
-            $this->value = $id;
-        }
-
-    }
-
-    /**
-     * Class representing <type> nonterminal -- used only by READ instruction
-     */
-    class Type extends Argument {
-
-        public function __construct($id) {
-            if (!preg_match(typePattern, $id)) {
-                echo $id;
-                exit(ERR_SYNTAX);
-            }
-            $this->type = "type";
-            $this->value = $id;
-        }
-
     }
 
 ?>
