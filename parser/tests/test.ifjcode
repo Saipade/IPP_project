@@ -1,0 +1,258 @@
+.IPPcode22
+DEFVAR GF@%tmp0
+DEFVAR GF@%tmp1
+DEFVAR GF@%tmp2
+DEFVAR GF@%expResult
+JUmP $over$reads
+LABEL $reads
+PUSHFRAME
+DEFVAR LF@%1%retval0
+MOVE LF@%1%retval0 nil@nil
+READ LF@%1%retval0 string
+LABEL $reads$ret
+POPFRAME
+RETURN
+LABEL $over$reads
+JUMP $over$readi
+LABEL $readi
+PUSHFRAME
+DEFVAR LF@%1%retval0
+MOVE LF@%1%retval0 nil@nil
+READ LF@%1%retval0 int
+LABEL $readi$ret
+POPFRAME
+RETURN
+LABEL $over$readi
+JUMP $over$readn
+LABEL $readn
+PUSHFRAME
+DEFVAR LF@%1%retval0
+MOVE LF@%1%retval0 nil@nil
+READ LF@%1%retval0 string
+LABEL $readn$ret
+POPFRAME#kjkj
+RETURN
+LABEL $over$readn
+JUMP $over$write
+LABEL $write
+PUSHFRAME
+JUMPIFEQ $write$nil LF@%0 nil@nil
+WRITE LF@%0
+JUMP $write$ret
+LABEL $write$nil
+WRITE string@nil
+LABEL $write$ret
+POPFRAME
+RETURN
+LABEL $over$write
+JUMP $over$tointeger
+LABEL $tointeger
+PUSHFRAME
+DEFVAR LF@%1%retval0
+DEFVAR LF@%nilcheck
+EQ LF@%nilcheck LF@%0 nil@nil
+JUMPIFEQ $tointeger$nil LF@%nilcheck bool@true
+INT2CHAR LF@%1%retval0 LF@%0
+JUMP $tointeger$ret
+LABEL $tointeger$nil
+MOVE LF@%1%retval0 nil@nil
+LABEL $tointeger$ret
+POPFRAME
+RETURN
+LABEL $over$tointeger
+JUMP $over$substr
+LABEL $substr
+PUSHFRAME
+DEFVAR LF@%s
+MOVE LF@%s LF@%0
+DEFVAR LF@%i
+MOVE LF@%i LF@%1
+DEFVAR LF@%j
+MOVE LF@%j LF@%2
+DEFVAR LF@%1%retval0
+MOVE LF@%1%retval0 string@ 
+DEFVAR LF@%check
+MOVE LF@%check bool@false
+EQ LF@%check LF@%s nil@nil
+JUMPIFEQ $substr$err8 LF@%check bool@true
+EQ LF@%check LF@%i nil@nil
+JUMPIFEQ $substr$err8 LF@%check bool@true
+EQ LF@%check LF@%j nil@nil
+JUMPIFEQ $substr$err8 LF@%check bool@true
+GT LF@%check LF@%i LF@%j
+JUMPIFEQ $substr$emptystr LF@%check bool@true
+DEFVAR LF@%strlen
+STRLEN LF@%strlen LF@%s
+GT LF@%check LF@%i LF@%strlen
+JUMPIFEQ $substr$emptystr LF@%check bool@true
+GT LF@%check int@1 LF@%i
+JUMPIFEQ $substr$emptystr LF@%check bool@true
+GT LF@%check LF@%j LF@%strlen
+JUMPIFEQ $substr$emptystr LF@%check bool@true
+GT LF@%check int@1 LF@%j
+JUMPIFEQ $substr$emptystr LF@%check bool@true
+DEFVAR LF@%char
+SUB LF@%i LF@%i int@1
+SUB LF@%j LF@%j int@1
+LABEL $substr$loop
+GETCHAR LF@%char LF@%s LF@%i
+CONCAT LF@%1%retval0 LF@%1%retval0 LF@%char
+ADD LF@%i LF@%i int@1
+GT LF@%check LF@%i LF@%j
+JUMPIFEQ $substr$ret LF@%check bool@true
+JUMP $substr$loop
+LABEL $substr$emptystr
+MOVE LF@%1%retval0 string@ 
+JUMP $substr$ret
+LABEL $substr$err8
+EXIT int@8
+LABEL $substr$ret
+POPFRAME
+RETURN
+LABEL $over$substr
+JUMP $over$ord
+LABEL $ord
+PUSHFRAME
+DEFVAR LF@%s
+MOVE LF@%s LF@%0
+DEFVAR LF@%i
+MOVE LF@%i LF@%1
+DEFVAR LF@%1%retval0
+MOVE LF@%1%retval0 nil@nil
+DEFVAR LF@%check
+MOVE LF@%check bool@false
+EQ LF@%check LF@%s nil@nil
+JUMPIFEQ $ord$err8 LF@%check bool@true
+EQ LF@%check LF@%i nil@nil
+JUMPIFEQ $ord$err8 LF@%check bool@true
+DEFVAR LF@%strlen
+STRLEN LF@%strlen LF@%s
+GT LF@%check LF@%i LF@%strlen
+JUMPIFEQ $substr$emptystr LF@%check bool@true
+GT LF@%check int@1 LF@%i
+JUMPIFEQ $substr$emptystr LF@%check bool@true
+SUB LF@%i LF@%i int@1
+STRI2INT LF@%1%retval0 LF@%s LF@%i
+JUMP $ord$ret
+LABEL $ord$emptystr
+MOVE LF@%1%retval0 nil@nil
+JUMP $ord$ret
+LABEL $ord$err8
+EXIT int@8
+LABEL $ord$ret
+POPFRAME
+RETURN
+LABEL $over$ord
+JUMP $over$chr
+LABEL $chr
+PUSHFRAME
+DEFVAR LF@%i
+MOVE LF@%i LF@%0
+DEFVAR LF@%1%retval0
+MOVE LF@%1%retval0 nil@nil
+DEFVAR LF@%check
+MOVE LF@%check bool@false
+EQ LF@%check LF@%i nil@nil
+JUMPIFEQ $chr$err8 LF@%check bool@true
+GT LF@%check LF@%i int@255
+JUMPIFEQ $chr$ret LF@%check bool@true
+GT LF@%check int@0 LF@%i
+JUMPIFEQ $chr$ret LF@%check bool@true
+INT2CHAR LF@%1%retval0 LF@%i
+JUMP $ord$ret
+LABEL $chr$err8
+EXIT int@8
+LABEL $chr$ret
+POPFRAME
+RETURN
+LABEL $over$chr
+JUMP $over$main
+LABEL $main
+PUSHFRAME
+DEFVAR LF@%1%vysl
+MOVE LF@%1%vysl int@0
+PUSHS int@0
+POPS LF@%1%vysl
+DEFVAR LF@%1%a
+MOVE LF@%1%a int@0
+PUSHS string@Zadejte\032cislo\032pro\032vypocet\032faktorialu\010
+POPS GF@%expResult
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@%expResult
+CALL $write
+CREATEFRAME
+CALL $readi
+MOVE LF@%1%a TF@%1%retval0
+PUSHS LF@%1%a
+PUSHS nil@nil
+PUSHFRAME
+POPS GF@%expResult
+JUMPIFNEQ $main$0$if$else GF@%expResult bool@true
+PUSHS string@a\032je\032nil\010
+POPS GF@%expResult
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@%expResult
+CALL $write
+JUMP $main$ret
+JUMP $main$0$if$end
+LABEL $main$0$if$else
+LABEL $main$0$if$end
+PUSHS LF@%1%a
+PUSHS int@0
+PUSHFRAME
+POPS GF@%expResult
+JUMPIFNEQ $main$1$if$else GF@%expResult bool@true
+PUSHS string@Faktorial\032nelze\032spocitat\010
+POPS GF@%expResult
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@%expResult
+CALL $write
+JUMP $main$1$if$end
+LABEL $main$1$if$else
+PUSHS int@1
+POPS LF@%1%vysl
+LABEL $main$0$loop$start
+PUSHS LF@%1%a
+PUSHS int@0
+PUSHFRAME
+POPS GF@%expResult
+JUMPIFNEQ $main$0$loop$end GF@%expResult bool@true
+PUSHS LF@%1%vysl
+PUSHS LF@%1%a
+PUSHFRAME
+POPS LF@%1%vysl
+PUSHS LF@%1%a
+PUSHS int@1
+PUSHFRAME
+POPS LF@%1%a
+JUMP $main$0$loop$start
+LABEL $main$0$loop$end
+PUSHS string@Vysledek\032je:\032
+POPS GF@%expResult
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@%expResult
+CALL $write
+PUSHS LF@%1%vysl
+POPS GF@%expResult
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@%expResult
+CALL $write
+PUSHS string@\010\032\032\032\032\032\032\032\032\032\032\032
+POPS GF@%expResult
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@%expResult
+CALL $write
+LABEL $main$1$if$end
+LABEL $main$ret
+POPFRAME
+RETURN #fsdf
+#LABEL $over$main #gdfgdfg
+CREATEFRAME
+CALL $main
+# vsego - 256 instrukcí

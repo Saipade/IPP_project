@@ -18,18 +18,18 @@
 
         private $opCode;                            // operation code attribute
         private $arguments = array();               // arguments as strings from input line
+        private $argFactory;                        // object for argument creation
         private $argumentsA = array();              // arguments as Argument class objects
         private $order;                             // order attribute
-        private $argFactory;                        // object for argument creation
 
         public function __construct($line, $lineNumber) {
-            $this->argFactory = new ArgumentFactory();
             $explodedLine = explode(" ", $line);
             $this->opCode = strtoupper($explodedLine[0]);
-            $this->arguments = array_slice($explodedLine, 1);
-            $this->order = $lineNumber;
             $this->checkOpCode();
+            $this->arguments = array_slice($explodedLine, 1);
+            $this->argFactory = new ArgumentFactory();
             $this->createArgs();
+            $this->order = $lineNumber;
         }
 
         /**

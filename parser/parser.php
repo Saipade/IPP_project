@@ -9,6 +9,9 @@
 
     class Parser {
 
+        private $code = array();                                                            // array of Instructions
+        private $currentLine = 1;                                                           // current line of code
+
         public function __construct($stats) {
             $this->stats = $stats;
         }
@@ -37,25 +40,22 @@
             $arguments = array_slice($argv, 1);                                             // cut the first argument (parse.php)
             $tmpArray = array();
             $statsIsPresent = false;
-            for ($i = 0; $i < count($arguments); $i++) {
-                
-                if (preg_match(statsPattern, $arguments[$i])) {                             // if --stats is present
-                    if ($statsIsPresent) {
+            foreach ($arguments as $argument) {
+                if (preg_match(statsPattern, $argument)) {                                  // if --stats is present
+                    if ($statsIsPresent)
                         $this->stats->addToGroups($tmpArray);
-                    }
-                    $tmpArray = array();                                                    // stats for each stats group in $statsGroups
-                    $statsIsPresent = true;                                                 // files for each stats group in $statsFiles
-                    $this->stats->addToFiles($arguments[$i]);
+                    $tmpArray = array();
+                    $statsIsPresent = true;
+                    $this->stats->addToFiles($argument);
                 }
-
-                else if (preg_match(statsOptPattern, $arguments[$i]) && $statsIsPresent == true) {
-                    array_push($tmpArray, substr($arguments[$i], 2));                       // push parameter w/o --
+                
+                elseif (preg_match(statsOptPattern, $argument) && $statsIsPresent == true) {
+                    array_push($tmpArray, substr($argument, 2));                            // push stats option w/o --
                 }
-
+                
                 else {                                                                      // no --stats before params or any unrecognized parameter
                     exit(ERR_PARAM);
                 }
-
             }
             $this->stats->addToGroups($tmpArray);
         }
@@ -64,23 +64,20 @@
          * Prints help text to standard output
          */
         private function getSomeHelp() {
-            fputs(STDOUT, "Filter type script (parse.php in PHP 8.1) loads IPPcode22 source code from standard input,\n");
-            fputs(STDOUT, "controls its lexical and syntax correctness and writes XML representation of program to standard output.\n");
-            fputs(STDOUT, "Possible parameters:\n");
-            fputs(STDOUT, "\t--help - don't use with other parameters\n");
-            fputs(STDOUT, "\t--stats=file - will write input code stats to the *file* directiory (use only with some of the following parameters)\n");
-            fputs(STDOUT, "\t--loc - number of lines with instructions\n");
-            fputs(STDOUT, "\t--comments - number of lines with comments\n");
-            fputs(STDOUT, "\t--labels - number of labels\n");
-            fputs(STDOUT, "\t--jumps - number of jumps\n");
-            fputs(STDOUT, "\t--fwjumps - number of forward jumps\n");
-            fputs(STDOUT, "\t--backjumps - number of backward jumps\n");
-            fputs(STDOUT, "\t--badjumps - number of jumps to non-existent labels\n");
+            echo "Filter type script (parse.php in PHP 8.1) loads IPPcode22 source code from standard input,\n";
+            echo "controls its lexical and syntax correctness and writes XML representation of program to standard output.\n";
+            echo "Possible parameters:\n";
+            echo "\t--help - don't use with other parameters\n";
+            echo "\t--stats=file - will write input code stats to the *file* directiory (use only with some of the following parameters)\n";
+            echo "\t--loc - number of lines with instructions\n";
+            echo "\t--comments - number of lines with comments\n";
+            echo "\t--labels - number of labels\n";
+            echo "\t--jumps - number of jumps\n";
+            echo "\t--fwjumps - number of forward jumps\n";
+            echo "\t--backjumps - number of backward jumps\n";
+            echo "\t--badjumps - number of jumps to non-existent labels\n";
             exit(SCAN_OK);
         }
-
-        private $code = array();                                                            // array of Instructions
-        private $currentLine = 1;                                                           // current line of code
 
         /**
          * Parses input code, fills $code array with Instructions

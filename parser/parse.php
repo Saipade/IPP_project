@@ -30,7 +30,7 @@
     $xml->appendChild($program);
     $parser->convertToXML($xml, $program);
 
-    $formattedXML = $xml->saveXML();
-    echo $formattedXML;
+    $xml = $xml->saveXML();
+    echo $xml;
 
 ?>
