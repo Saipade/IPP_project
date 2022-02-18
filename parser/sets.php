@@ -4,7 +4,7 @@
  * Subject: IPP - Principles of Programming Languages
  * @author Maksim Tikhonov (xtikho00)
  * 
- * Files contains auxiliary arrays
+ * File contains auxiliary arrays
  */
 
     // array of all IPPcode22 instructions with their arguments

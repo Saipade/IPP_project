@@ -16,8 +16,8 @@
         /**
          * Parses input arguments
          * 
-         * @param argc number of input arguments
-         * @param argv array of input arguments
+         * @param int $argc number of input arguments
+         * @param array $argv array of input arguments
          */
         public function parseArgs($argc, $argv) {
             global $statsOptions;
@@ -30,8 +30,9 @@
                 $this->getSomeHelp();
             }
             
-            if (count(getopt("", $statsOptions)) == 0)                                      // if any of --stats options were used
+            if (count(getopt("", $statsOptions)) == 0) {                                    // if any of --stats options were used
                 return;
+            }
 
             $arguments = array_slice($argv, 1);                                             // cut the first argument (parse.php)
             $tmpArray = array();
@@ -47,10 +48,7 @@
                     $this->stats->addToFiles($arguments[$i]);
                 }
 
-                else if ((!strcmp($arguments[$i], "--loc")                                  // if any other valid parameter 
-                || !strcmp($arguments[$i], "--comments") || !strcmp($arguments[$i], "--labels") 
-                || !strcmp($arguments[$i], "--jumps") || !strcmp($arguments[$i], "--fwjumps") 
-                || !strcmp($arguments[$i], "--backjumps") || !strcmp($arguments[$i], "--badjumps")) && $statsIsPresent == true) {
+                else if (preg_match(statsOptPattern, $arguments[$i]) && $statsIsPresent == true) {
                     array_push($tmpArray, substr($arguments[$i], 2));                       // push parameter w/o --
                 }
 
@@ -98,8 +96,9 @@
                 if (strlen($line) == 0) 
                     continue;
                 // header is missing or is written twice
-                if (($headerIsPresent && preg_match(headerPattern, $line)) || (!$headerIsPresent && !preg_match(headerPattern, $line))) 
+                if (($headerIsPresent && preg_match(headerPattern, $line)) || (!$headerIsPresent && !preg_match(headerPattern, $line))) {
                     exit(ERR_HEADER);
+                }
                 elseif (!$headerIsPresent) {
                     $headerIsPresent = true;
                     continue;
@@ -113,7 +112,7 @@
         /**
          * Adds Instruction to $code array, increments line counter
          * 
-         * @param instruction Instruction object
+         * @param Instruction $instruction Instruction object
          */
         private function addInst($instruction) {
             array_push($this->code, $instruction);
@@ -131,7 +130,6 @@
                 
                 elseif ($instruction->getOpCode() == "LABEL") 
                     $this->stats->addLabel($instruction->getArg(0));
-                
             }
             $this->stats->setJumpsAndLabels();
         }

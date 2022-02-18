@@ -8,7 +8,6 @@
  */
 
     /**
-     * 
      * Abstract class for all nonterminal symbols used as intructions' arguments
      */
     abstract class Argument {
@@ -29,13 +28,19 @@
     }
     
     /**
-     * Class utilizing factory method, creates different arguments
+     * Class utilizing factory method, creates array of Argument class objects
      */
     class ArgumentFactory {
 
-        public function createArgument($argumentType, $argumentValue) : Argument {
-            $argumentType = ucwords(strtolower($argumentType));
-            return new $argumentType($argumentValue);
+        public function createArguments($opCode, $argumentsStr) : array {
+            global $instructionSet;
+            $newArguments = array();
+            if (count($instructionSet[$opCode]) != count($argumentsStr)) 
+                exit(ERR_SYNTAX);
+            foreach ($instructionSet[$opCode] as $index => $argumentType) {
+                $newArguments[$index] = new $argumentType($argumentsStr[$index]);
+            }
+            return $newArguments;
         }
 
     }

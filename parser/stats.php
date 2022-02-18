@@ -53,16 +53,15 @@
         }
         
         public function addLabel($label) {
-            if (array_search($label, $this->labelIds) == true) 
+            if (array_search($label, $this->labelIds)) 
                 exit(ERR_SYNTAX);
             array_push($this->labelIds, $label);
         }
 
         public function addJump($label) {
             array_push($this->jumpDestinations, $label);
-            if (array_search($label, $this->labelIds) == true) {
+            if (array_search($label, $this->labelIds))
                 $this->backjumps++;
-            }
         }
 
         public function setJumpsAndLabels() {
@@ -83,11 +82,11 @@
             if (count($this->files) != count(array_unique($this->files)))
                 exit(ERR_OUTPUT);
             
-            for ($i = 0; $i < count($this->files); $i++) {
-                $file = fopen($this->files[$i], "w");
+            foreach ($this->files as $key => $file) {
+                $file = fopen($file, "w");
                 $statsText = "";
-                for ($j = 0; $j < count($this->groups[$i]); $j++) {
-                    $statsText .= $this->{$this->groups[$i][$j]}."\n";
+                foreach ($this->groups[$key] as $option) {
+                    $statsText .= $this->{$option}."\n";
                 }
                 if (!fwrite($file, $statsText))
                     exit(ERR_OUTPUT);

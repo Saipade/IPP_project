@@ -18,7 +18,7 @@
 
         private $opCode;                            // operation code attribute
         private $arguments = array();               // arguments as strings from input line
-        private $argumentsA = array();              // arguments as objects (transformed from string form)
+        private $argumentsA = array();              // arguments as Argument class objects
         private $order;                             // order attribute
         private $argFactory;                        // object for argument creation
 
@@ -37,25 +37,15 @@
          */
         private function checkOpCode() {
             global $instructionSet;
-            if (!array_key_exists(strtoupper($this->opCode), $instructionSet)){
+            if (!array_key_exists(strtoupper($this->opCode), $instructionSet))
                 exit(ERR_OPCODE);
-            }
         }
 
         /**
-         * Checks if number of input arguments is corresponding to exprected number;
-         * then creates objects of Argument's subclasses corresponding to instruction's ones
+         * Uses Argument factory class object to construct array of Arguments
          */
         private function createArgs() {
-            global $instructionSet;
-            if (count($instructionSet[$this->opCode]) != count($this->arguments)) 
-                exit(ERR_SYNTAX);
-
-            foreach ($instructionSet[$this->opCode] as $index => $argumentType) {
-                // see instructionSet array; creates objects of arguments according to given operation code and fills $argumentsA array
-                // e.g. for 'JUMPIFNEQ' operation code 3 objects will be created -- of Label, Symbol and Symbol classes
-                $this->argumentsA[$index] = $this->argFactory->createArgument($argumentType, $this->arguments[$index]);
-            }    
+            $this->argumentsA = $this->argFactory->createArguments($this->opCode, $this->arguments);
         }
 
         /**
@@ -68,9 +58,9 @@
             $instructionXML = $xml->createElement('instruction');
             $instructionXML->setAttribute('order', $this->order);
             $instructionXML->setAttribute('opcode', $this->opCode);
-            for ($i = 0; $i < count($this->arguments); $i++) {
-                $argXML = $xml->createElement("arg".$i+1, $this->argumentsA[$i]->getValue());
-                $argXML->setAttribute('type', $this->argumentsA[$i]->getType());
+            foreach ($this->argumentsA as $index => $argument) {
+                $argXML = $xml->createElement("arg".$index+1, $argument->getValue());
+                $argXML->setAttribute('type', $argument->getType());
                 $instructionXML->appendChild($argXML);
             }
             $program->appendChild($instructionXML);

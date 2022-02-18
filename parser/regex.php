@@ -4,7 +4,8 @@
  * File contains regular expressions for character matching
  */
 
-    define("statsPattern", "/(--stats=)(.+)/");
+    define("statsPattern", "/^(--stats=)(.+)$/");
+    define("statsOptPattern", "/^--(loc|comments|labels|jumps|fwjumps|backjumps|badjumps)$/");
     define("headerPattern", "/^(.IPPcode22)$/");
     define("commentPattern", "/#.*/");
     define("varPattern", "/^[[:alpha:]_$&%\-*!?][[:alnum:]_$&%\-*!?]*$/");
