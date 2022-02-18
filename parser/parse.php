@@ -14,10 +14,9 @@
     
     ini_set('display_errors', 'stderr');
 
-    $stats = new Stats();
-    $parser = new Parser($stats);
+    $parser = new Parser();
 
-    $parser->parseArgs($argc, $argv);
+    $parser->parseArgs();
     $parser->parseCode();
 
     $parser->makeupStats();

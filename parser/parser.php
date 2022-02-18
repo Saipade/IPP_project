@@ -12,8 +12,8 @@
         private $code = array();                                                            // array of Instructions
         private $currentLine = 1;                                                           // current line of code
 
-        public function __construct($stats) {
-            $this->stats = $stats;
+        public function __construct() {
+            $this->stats = Stats::Connect();
         }
 
         /**
@@ -22,8 +22,8 @@
          * @param int $argc number of input arguments
          * @param array $argv array of input arguments
          */
-        public function parseArgs($argc, $argv) {
-            global $statsOptions;
+        public function parseArgs() {
+            global $argc, $argv, $statsOptions;
             $options = getopt("", ["help"]);                                                // if --help is present
             if (array_key_exists("help", $options)) {
                 if ($argc > 2) {

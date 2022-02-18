@@ -11,6 +11,8 @@
 
     class Stats {
 
+        private static $connection;
+
         private $groups = array();
         private $files = array();
 
@@ -25,6 +27,15 @@
         private $labelIds = array();
         private $jumpDestinations = array();
         
+        /**
+         * Makes Stats class a singleton
+         */
+        public static function Connect() {
+            if (!isset(self::$connection))
+                self::$connection = new Stats;
+            return self::$connection;
+        }
+
         /**
          * Pushes array to stats groups array
          * 

@@ -43,7 +43,7 @@
         'CONCAT' => ['Variable', 'Symbol', 'Symbol'],
         'GETCHAR' => ['Variable', 'Symbol', 'Symbol'],
         'SETCHAR' => ['Variable', 'Symbol', 'Symbol'],
-        'READ' => ['Variable', 'Type'],
+        'READ' => ['Variable', 'Type']
     );
 
     // array of possible stats options
@@ -55,7 +55,15 @@
         "jumps",
         "fwjumps",
         "backjumps",
-        "badjumps",
+        "badjumps"
+    );
+
+    $stringReplacements = array(
+        "&" => "&#38;",
+        "<" => "&#60;",
+        ">" => "&#62;",
+        "'" => "&#39;",
+        "\"" => "&#34;"
     );
 
 ?>

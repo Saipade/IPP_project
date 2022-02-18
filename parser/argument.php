@@ -99,7 +99,9 @@
                 case "string":
                     if (!preg_match(stringPattern, $id[1]))
                         exit(ERR_SYNTAX);
+                    global $stringReplacements;
                     $this->type = "string";
+                    $id[1] = strtr($id[1], $stringReplacements);            // replace bad characters with XML escape sequence (see sets.php)
                     break;
 
                 default:

@@ -40,7 +40,7 @@ JUMPIFEQ $write$nil LF@%0 nil@nil
 WRITE LF@%0
 JUMP $write$ret
 LABEL $write$nil
-WRITE string@nil
+WRITE string@gfg&
 LABEL $write$ret
 POPFRAME
 RETURN
