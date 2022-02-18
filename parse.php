@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Subject: IPP - Principles of Programming Languages
+ * @author Maksim Tikhonov (xtikho00)
+ * 
+ * Main file
+ */
+
     include 'errorslist.php';
     include 'parser.php';
     include 'instruction.php';
@@ -22,6 +29,7 @@
     $program->setAttribute('language', 'IPPcode22');
     $xml->appendChild($program);
     $parser->convertToXML($xml, $program);
+
     $formattedXML = $xml->saveXML();
     echo $formattedXML;
 

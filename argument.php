@@ -1,7 +1,10 @@
 <?php
 
 /**
- * Files contains classes representing different types of instructions' arguments
+ * Subject: IPP - Principles of Programming Languages
+ * @author Maksim Tikhonov (xtikho00)
+ * 
+ * File contains implementation of Argument abstract class and implementation of all subclasses of it
  */
 
     /**

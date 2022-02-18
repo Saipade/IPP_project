@@ -4,7 +4,7 @@
  * Subject: IPP - Principles of Programming Languages
  * @author Maksim Tikhonov (xtikho00)
  * 
- * File contains Insruction class for internal representation of input code
+ * File contains implementation of Insruction class
  */
 
     include 'regex.php';
@@ -12,7 +12,7 @@
     include 'argument.php';
 
     /**
-     * Represents every meaningful line of code
+     * Represents any meaningful line of code
      */
     class Instruction {
 

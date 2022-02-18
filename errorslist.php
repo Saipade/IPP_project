@@ -1,5 +1,12 @@
 <?php 
 
+/**
+ * Subject: IPP - Principles of Programming Languages
+ * @author Maksim Tikhonov (xtikho00)
+ * 
+ * Files contains macros for errors
+ */
+
     define("SCAN_OK", 0);                       // no error
     define("ERR_PARAM", 10);                    // script parameter error
     define("ERR_INPUT", 11);                    // read error

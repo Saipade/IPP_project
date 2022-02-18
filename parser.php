@@ -1,4 +1,11 @@
-<?php 
+<?php
+
+/**
+ * Subject: IPP - Principles of Programming Languages
+ * @author Maksim Tikhonov (xtikho00)
+ * 
+ * File contains implementation of Parser class
+ */
 
     class Parser {
 

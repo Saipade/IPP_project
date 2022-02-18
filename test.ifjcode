@@ -30,7 +30,7 @@ DEFVAR LF@%1%retval0
 MOVE LF@%1%retval0 nil@nil
 READ LF@%1%retval0 string
 LABEL $readn$ret
-POPFRAME
+POPFRAME#kjkj
 RETURN
 LABEL $over$readn
 JUMP $over$write
