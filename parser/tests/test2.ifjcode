@@ -58,7 +58,7 @@ LABEL $tointeger$nil
 MOVE LF@%1%retval0 nil@nil
 LABEL $tointeger$ret
 POPFRAME
-RETURN
+RETURN # 9+41+8
 LABEL $over$tointeger
 JUMP $over$substr
 LABEL $substr

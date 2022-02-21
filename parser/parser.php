@@ -39,18 +39,20 @@
 
             $arguments = array_slice($argv, 1);                                             // cut the first argument (parse.php)
             $tmpArray = array();
+            $currentKey = "";
             $statsIsPresent = false;
             foreach ($arguments as $argument) {
                 if (preg_match(statsPattern, $argument)) {                                  // if --stats is present
                     if ($statsIsPresent)
                         $this->stats->addToGroups($tmpArray);
-                    $tmpArray = array();
+                    $currentKey = substr($argument, 8);
+                    $tmpArray = array($currentKey => []);                                   // create empty array with filename key
                     $statsIsPresent = true;
-                    $this->stats->addToFiles($argument);
+                    //$this->stats->addToFiles($argument);
                 }
                 
                 elseif (preg_match(statsOptPattern, $argument) && $statsIsPresent == true) {
-                    array_push($tmpArray, substr($argument, 2));                            // push stats option w/o --
+                    array_push($tmpArray[$currentKey], substr($argument, 2));               // push stats option w/o --
                 }
                 
                 else {                                                                      // no --stats before params or any unrecognized parameter
@@ -124,6 +126,10 @@
             foreach ($this->code as $instruction) {
                 if (preg_match(jumpPattern, $instruction->getOpCode())) 
                     $this->stats->addJump($instruction->getArg(0));
+
+                elseif (!strcmp("RETURN", $instruction->getOpCode()))
+                    $this->stats->incJumps();
+                
                 
                 elseif ($instruction->getOpCode() == "LABEL") 
                     $this->stats->addLabel($instruction->getArg(0));

@@ -42,17 +42,7 @@
          * @param array $group new stats group
          */
         public function addToGroups($group) {
-            array_push($this->groups, $group);
-        }
-
-        /**
-         * Extracts filename from *--stats=...*,
-         * pushes new file into files array
-         * 
-         * @param array $file new file name
-         */
-        public function addToFiles($file) {
-            array_push($this->files, substr($file, 8));
+            $this->groups[key($group)] = $group[key($group)];
         }
 
         public function setInstructions($count) {
@@ -62,11 +52,16 @@
         public function incComments() {
             $this->comments++;
         }
-        
+
         public function addLabel($label) {
             if (array_search($label, $this->labelIds)) 
                 exit(ERR_SYNTAX);
             array_push($this->labelIds, $label);
+        }
+
+        // special case for RETURN instruction; other jumps are handled by addJump method
+        public function incJumps() {
+            $this->jumps++;
         }
 
         public function addJump($label) {
@@ -76,13 +71,14 @@
         }
 
         public function setJumpsAndLabels() {
-            $this->jumps = count($this->jumpDestinations);
+            $returnCnt = $this->jumps; 
+            $this->jumps += count($this->jumpDestinations);
             $this->labels = count($this->labelIds);
             foreach ($this->jumpDestinations as $jump) {
                 if (!array_search($jump, $this->labelIds)) 
                     $this->badjumps++;
             }
-            $this->fwjumps = $this->jumps - $this->badjumps - $this->backjumps;
+            $this->fwjumps = $this->jumps - $this->badjumps - $this->backjumps - $returnCnt;
         }
 
         /**
@@ -90,18 +86,18 @@
          */
         public function writeStats() {
             // check if there are duplicates in files array
-            if (count($this->files) != count(array_unique($this->files)))
+            if (count(array_keys($this->groups)) != count(array_unique(array_keys($this->groups))))
                 exit(ERR_OUTPUT);
-            
-            foreach ($this->files as $key => $file) {
-                $file = fopen($file, "w");
+
+            foreach ($this->groups as $file => $group) {
+                $outFile = fopen($file, "w");
                 $statsText = "";
-                foreach ($this->groups[$key] as $option) {
+                foreach ($group as $option) {
                     $statsText .= $this->{$option}."\n";
                 }
-                if (!fwrite($file, $statsText))
+                if (!fwrite($outFile, $statsText))
                     exit(ERR_OUTPUT);
-                fclose($file);
+                fclose($outFile);
             }
         }
 

@@ -40,7 +40,7 @@ JUMPIFEQ $write$nil LF@%0 nil@nil
 WRITE LF@%0
 JUMP $write$ret
 LABEL $write$nil
-WRITE string@nil
+WRITE string@\065\434sosibibu
 LABEL $write$ret
 POPFRAME
 RETURN
@@ -85,7 +85,7 @@ DEFVAR LF@%strlen
 STRLEN LF@%strlen LF@%s
 GT LF@%check LF@%i LF@%strlen
 JUMPIFEQ $substr$emptystr LF@%check bool@true
-GT LF@%check int@1 LF@%i
+GT LF@%check int@nil LF@%i
 JUMPIFEQ $substr$emptystr LF@%check bool@true
 GT LF@%check LF@%j LF@%strlen
 JUMPIFEQ $substr$emptystr LF@%check bool@true
