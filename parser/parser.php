@@ -33,10 +33,9 @@
                 $this->getSomeHelp();
             }
             
-            if (count(getopt("", $statsOptions)) == 0) {                                    // if any of --stats options were used
+            if (count(getopt("", $statsOptions)) == 0)                                      // if any of --stats options were used
                 return;
-            }
-
+            
             $arguments = array_slice($argv, 1);                                             // cut the first argument (parse.php)
             $tmpArray = array();
             $currentKey = "";
@@ -48,7 +47,6 @@
                     $currentKey = substr($argument, 8);
                     $tmpArray = array($currentKey => []);                                   // create empty array with filename key
                     $statsIsPresent = true;
-                    //$this->stats->addToFiles($argument);
                 }
                 
                 elseif (preg_match(statsOptPattern, $argument) && $statsIsPresent == true) {

@@ -32,4 +32,6 @@
     $xml = $xml->saveXML();
     echo $xml;
 
+    return SCAN_OK;
+
 ?>

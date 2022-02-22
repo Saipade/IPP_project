@@ -14,7 +14,6 @@
         private static $connection;
 
         private $groups = array();
-        private $files = array();
 
         private $loc = 0;                           // --loc
         private $comments = 0;                      // --comments
