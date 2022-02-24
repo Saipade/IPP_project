@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <program language="IPPcode22">
+  <instruction order="79" opcode="EQ">
+    <arg1 type="var">LF@%check</arg1>
+    <arg2 type="var">LF@%j</arg2>
+    <arg3 type="nil">nil</arg3>
+  </instruction>
+  <instruction order="80" opcode="JUMPIFEQ">
+    <arg1 type="label">$substr$err8</arg1>
+    <arg2 type="var">LF@%check</arg2>
+    <arg3 type="bool">true</arg3>
+  </instruction>
+  <instruction order="81" opcode="GT">
+    <arg1 type="var">LF@%check</arg1>
+    <arg2 type="var">LF@%i</arg2>
+    <arg3 type="var">LF@%j</arg3>
+  </instruction>
   <instruction order="1" opcode="DEFVAR">
     <arg1 type="var">GF@%tmp0</arg1>
   </instruction>
@@ -228,21 +243,6 @@
     <arg1 type="label">$substr$err8</arg1>
     <arg2 type="var">LF@%check</arg2>
     <arg3 type="bool">true</arg3>
-  </instruction>
-  <instruction order="79" opcode="EQ">
-    <arg1 type="var">LF@%check</arg1>
-    <arg2 type="var">LF@%j</arg2>
-    <arg3 type="nil">nil</arg3>
-  </instruction>
-  <instruction order="80" opcode="JUMPIFEQ">
-    <arg1 type="label">$substr$err8</arg1>
-    <arg2 type="var">LF@%check</arg2>
-    <arg3 type="bool">true</arg3>
-  </instruction>
-  <instruction order="81" opcode="GT">
-    <arg1 type="var">LF@%check</arg1>
-    <arg2 type="var">LF@%i</arg2>
-    <arg3 type="var">LF@%j</arg3>
   </instruction>
   <instruction order="82" opcode="JUMPIFEQ">
     <arg1 type="label">$substr$emptystr</arg1>

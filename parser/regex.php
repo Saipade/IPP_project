@@ -6,7 +6,7 @@
 
     define("statsPattern", "/^(--stats=)(.+)$/");
     define("statsOptPattern", "/^--(loc|comments|labels|jumps|fwjumps|backjumps|badjumps)$/");
-    define("headerPattern", "/^(.IPPcode22)$/");
+    define("headerPattern", "/^(.IPPcode22)$/i");
     define("commentPattern", "/#.*/");
     define("varPattern", "/^[[:alpha:]_$&%\-*!?][[:alnum:]_$&%\-*!?]*$/");
     define("lablePattern", "/^[[:alpha:]_$&%\-*!?][[:alnum:]_$&%\-*!?]*$/"); // same as varPattern

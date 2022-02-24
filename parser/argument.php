@@ -4,7 +4,8 @@
  * Subject: IPP - Principles of Programming Languages
  * @author Maksim Tikhonov (xtikho00)
  * 
- * File contains implementation of Argument abstract class and implementation of all subclasses of it
+ * File contains implementations of Argument abstract class, all subclasses of it 
+ * and implementation of Factory method class designed for argument construction
  */
 
     /**

@@ -127,8 +127,7 @@
 
                 elseif (!strcmp("RETURN", $instruction->getOpCode()))
                     $this->stats->incJumps();
-                
-                
+                                
                 elseif ($instruction->getOpCode() == "LABEL") 
                     $this->stats->addLabel($instruction->getArg(0));
             }
