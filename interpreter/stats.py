@@ -12,7 +12,6 @@ class Stats:
         return self._instance
 
     def __init__(self):
-        
         self.insts = None                                   # --insts
         self.hot = None                                     # --hot
         self.vars = None                                    # --vars
@@ -23,8 +22,9 @@ class Stats:
         for instr in instructionSet:
             self.hotInstructions[instr] = [0, 1]
 
-    def updateInsts(self):
-        self.insts += 1
+    def updateInsts(self, instruction):
+        if instruction.opCode != 'LABEL' and instruction.opCode != 'DPRINT' and instruction.opCode != 'BREAK':
+            self.insts += 1
 
     def updateVars(self, num):
         '''

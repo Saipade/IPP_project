@@ -15,7 +15,7 @@
     <arg2 type="var">LF@%i</arg2>
     <arg3 type="var">LF@%j</arg3>
   </instruction>
-  <instruction order="1" opcode="DEFVAR">
+  <instruction order="1" opcode="DeFVAR">
     <arg1 type="var">GF@%tmp0</arg1>
   </instruction>
   <instruction order="2" opcode="DEFVAR">
@@ -806,7 +806,7 @@
   <instruction order="252" opcode="POPFRAME"/>
   <instruction order="253" opcode="RETURN"/>
   <instruction order="254" opcode="CREATEFRAME"/>
-  <instruction order="255" opcode="CALL">
+  <instruction order="255" opcode="CaLL">
     <arg1 type="label">$main</arg1>
   </instruction>
 </program>

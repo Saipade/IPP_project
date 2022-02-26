@@ -53,7 +53,6 @@ instructionSet = {
     'SETCHAR' : ['Variable', 'Symbol', 'Symbol'],
     'READ' : ['Variable', 'Type']}
 
-
 help = "Usage: interpret.py [--source=SOURCE_FILE] [--input=INPUT_FILE] [--stats=STATS_FILE] [--insts] [--hot] [--vars]\n\n" \
     "Arguments:\n\t--help shows help message and exits\n\t--source=SOURCE_FILE indicates source file\n\t--input=INPUT_FILE indicates input file\n\t" \
     "--stats=STATS_FILE indicates stats file\n\t\t--insts stats option, counts \"executable\" instructions\n\t\t--hot stats option, finds the most used instruction\n\t\t" \
