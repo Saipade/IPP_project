@@ -12,10 +12,10 @@ class Stats:
         return self._instance
 
     def __init__(self):
-        self.insts = None                                   # --insts
-        self.hot = None                                     # --hot
-        self.vars = None                                    # --vars
-        self.currentVars = None                             # counter for current number of initialized variables
+        self.insts = 0                                      # --insts
+        self.hot = 0                                        # --hot
+        self.vars = 0                                       # --vars
+        self.currentVars = 0                                # counter for current number of initialized variables
         self.statsGroups = {}                               # dictionary of shape <filename> => [statsopt1, statsopt2, ..., statsoptN]
 
         self.hotInstructions = {}                           # dictionary of shape <instructionOpCode => [useCount, firstAppear]
@@ -23,7 +23,7 @@ class Stats:
             self.hotInstructions[instr] = [0, 1]
 
     def updateInsts(self, instruction):
-        if instruction.opCode != 'LABEL' and instruction.opCode != 'DPRINT' and instruction.opCode != 'BREAK':
+        if instruction.opCode not in ('LABEL', 'DPRINT', 'BREAK'):
             self.insts += 1
 
     def updateVars(self, num):
@@ -48,5 +48,8 @@ class Stats:
         Returns order.
         '''
         return list(sorted(list(self.hotInstructions.items()), key=lambda x: (x[1][0], 1/x[1][1]), reverse=True))[0][1][0] # too lon' :(
+
+    def writeStats(self):
+        pass
     
 

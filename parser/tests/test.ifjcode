@@ -1,5 +1,4 @@
-.IPPcode22
-DEFVAR GF@%tmp0
+DEFVAR GF@%tmp0 #verni header
 DEFVAR GF@%tmp1
 DEFVAR GF@%tmp2
 DEFVAR GF@%expResult
@@ -40,7 +39,7 @@ JUMPIFEQ $write$nil LF@%0 nil@nil
 WRITE LF@%0
 JUMP $write$ret
 LABEL $write$nil
-WRITE string@\065\434sosibibu
+WRITE string@
 LABEL $write$ret
 POPFRAME
 RETURN
@@ -252,7 +251,7 @@ LABEL $main$1$if$end
 LABEL $main$ret
 POPFRAME
 RETURN #fsdf
-#LABEL $over$main #gdfgdfg
+LABEL $over$main #gdfgdfg
 CREATEFRAME
 CALL $main
 # vsego - 256 instrukcí

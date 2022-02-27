@@ -805,8 +805,11 @@
   </instruction>
   <instruction order="252" opcode="POPFRAME"/>
   <instruction order="253" opcode="RETURN"/>
-  <instruction order="254" opcode="CREATEFRAME"/>
-  <instruction order="255" opcode="CALL">
+  <instruction order="254" opcode="LABEL">
+    <arg1 type="label">$over$main</arg1>
+  </instruction>
+  <instruction order="255" opcode="CREATEFRAME"/>
+  <instruction order="256" opcode="CALL">
     <arg1 type="label">$main</arg1>
   </instruction>
 </program>

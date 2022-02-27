@@ -31,7 +31,6 @@ class Interpreter:
 
         self.currentInstruction = None                  # Instruction class object
         self.currentLine = 0                            # current line of input code
-        self.instructionCounter = 0                     # instruction counter
         self.dataStack = []                             # list of shape [[type, value], [type, value], ..]
     
     def parseArguments(self):
@@ -93,7 +92,6 @@ class Interpreter:
         
     def constructInstructionList(self):
         for _, xmlInstruction in enumerate(self.xmlTree):
-            print(xmlInstruction.attrib['order'])
             self.instructionList.append(Instruction(xmlInstruction))
         for instruction in self.instructionList:
             print(f'order: {instruction.order}, {instruction.opCode} {instruction.args[0]} {instruction.args[1]} {instruction.args[2]} ')
@@ -116,11 +114,11 @@ class Interpreter:
         print(self.labelList)
         while True: # execute __exec*X*()
             self.currentInstruction = self.instructionList[self.currentLine]
-            exec(f'self.exec{self.currentInstruction.opCode}()')
+            print(self.currentInstruction.order, self.currentInstruction.opCode)
+            getattr(self, 'exec'+self.currentInstruction.opCode)()
             self.stats.updateInsts(self.currentInstruction)
             self.stats.updateHot(self.currentInstruction)
             self.currentLine += 1
-            self.instructionCounter += 1
             if (self.currentLine == len(self.instructionList)):
                 break
 
@@ -129,47 +127,53 @@ class Interpreter:
         Returns variables' values (if there are variables in expression), checks type compatibility
         '''
         if stack is True:
-            operand2 = self.dataStack.pop()
-            operand1 = self.dataStack.pop()
+            opType1, opVal1 = self.dataStack.pop()
+            opType2, opVal2 = self.dataStack.pop()
         else:
-            operand1, operand2 = self.currentInstruction.args[1], self.currentInstruction.args[2]
-        suffix1, suffix2 = operand1.suffix, operand2.suffix
-        if suffix1 == 'GF' or suffix1 == 'LF' or suffix1 == 'TF':
-            try:
-                exec(f'operand1 = self.{suffix1}rame[{operand1.value}]')
-                opType1, opVal1 = operand1
-            except KeyError: # undefined variable
-                exit(ERR_SEMAN)
+            opType1, opVal1, opType2, opVal2 = \
+            self.currentInstruction.args[1].getData('suffix', 'id'), self.currentInstruction.args[2].getData('suffix', 'id')
+        if opType1 in ('GF', 'LF', 'TF'):
+            opType1, opVal1 = self.__findInFrame(opType1, opVal1)
         else:
-            opType1, opVal1 = suffix1, operand1.value
-        if suffix2 == 'GF' or suffix2 == 'LF' or suffix2 == 'TF':
-            try:
-                exec(f'operand2 = self.{suffix2}rame[{operand2.value}]')
-                opType2, opVal2 = operand2
-            except KeyError: # undefined variable
-                exit(ERR_SEMAN)
+            opType1, opVal1 = self.currentInstruction.args[1].getData('suffix', 'value')
+        if opType2 in ('GF', 'LF', 'TF'):
+            opType2, opVal2 = self.__findInFrame(opType2, opVal2)
         else:
-            opType2, opVal2 = suffix2, operand2.value
+            opType2, opVal2 = self.currentInstruction.args[2].getData('suffix', 'value')
         if opType1 != opType2 and opVal1 != 'nil' and opVal2 != 'nil':
             exit(ERR_TYPES)
-        return opVal1, opVal2
+        return opVal1, opVal2, opType1
 
-    def __evalExpr(self, op, stack=False):
-        operand1, operand2, retval = self.__getValues(stack), None
-
-        if operand1 == 'true' or 'false': operand1 = operand1.capitalize()
-        if operand2 == 'true' or 'false': operand2 = operand2.capitalize()
-
+    def __evalExpr(self, lexp, op, stack=False):
+        '''
+        Evaluates given expression
+        '''
+        operand1, operand2, type = self.__getValues(stack)
+        
+        if operand1 in ('true', 'false'): operand1 = operand1.capitalize()
+        if operand2 in ('true', 'false'): operand2 = operand2.capitalize()
         if operand1 == 'nil' or operand2 == 'nil':
-            if op != '==' and op != '!=':
+            if op not in ('==', '!='):
                 exit(ERR_TYPES)
-            if operand1 == 'nil': operand1 = 'None'
-            if operand2 == 'nil': operand2 = 'None'
+            if operand1 == 'nil': operand1 = None
+            if operand2 == 'nil': operand2 = None
 
-        exec('retval = operand1 op operand2' )
-        if stack is True: self.dataStack.append(retval)
+        retval = lexp(operand1, operand2)
+        if stack is True: self.dataStack.append(type, retval)
         else: return retval
 
+    def __str2bool(self, str1, str2):
+        for str in [str1, str2]:
+            if str == 'true': str = True
+            else: str = False
+        return str1, str2
+
+    def __findInFrame(self, frame, id):
+        try:
+            type, value = getattr(self, frame+'rame')[id].getData('suffix', 'value')
+        except KeyError:
+            exit(ERR_UNDECLVAR)
+        return type, value
 
     '''
     Instruction list
@@ -197,18 +201,17 @@ class Interpreter:
 
     def execBREAK(self):
         print(f'Current position: {self.currentLine}\nGlobal frame: {self.GFrame}\nLocal frame: {self.LFrame}\n' \
-            f'Temporary frame: {self.TFrame}\nInstruction counter: {self.instructionCounter}')
+            f'Temporary frame: {self.TFrame}\nInstruction counter: {self.stats.insts}', file=sys.stderr)
 
     def execCLEARS(self):
-        self.framesStack = []
-        self.stats.updateVars(-self.stats.currentVars)
+        self.dataStack = []
 
     def execCALL(self):
         try:
             self.currentLine = self.labelList[self.currentInstruction.args[0].value]
             self.callStack.append(self.currentLine+1)
             self.stats.updateVars(len(self.GFrame)+len(self.TFrame)-self.stats.currentVars)
-        except KeyError:
+        except KeyError: # label does not exist
             exit(ERR_SEMAN)
 
     def execLABEL(self):
@@ -220,133 +223,230 @@ class Interpreter:
     def execL483L(self):
         if self.currentInstruction.args[0].value in self.labelList:
             exit(ERR_SEMAN)
-        self.labelList[self.currentInstruction.args[0].value] = self.currentLine + 1
+        self.labelList[self.currentInstruction.args[0].value] = self.currentLine
 
     def execJUMP(self):
         try:
             self.currentLine = self.labelList[self.currentInstruction.args[0].value]
-        except KeyError:
+        except KeyError: # label does not exist
             exit(ERR_SEMAN)
 
     def execJUMPIFEQS(self):
         try:
-            if self.__evalExpr('==', stack=True) == True:
+            if self.__evalExpr(lambda a, b: a == b, '==', stack=True) == True:
                 self.currentLine = self.labelList[self.currentInstruction.args[0].value]
-        except KeyError:
+        except KeyError: # label does not exist
             exit(ERR_SEMAN)
             
     def execJUMPIFNEQS(self):
         try:
-            if self.__evalExpr('!=', stack=True) == True:
+            if self.__evalExpr(lambda a, b: a != b, '!=', stack=True) == True:
                 self.currentLine = self.labelList[self.currentInstruction.args[0].value]
-        except KeyError:
+        except KeyError: # label does not exist
             exit(ERR_SEMAN)
             
     def execJUMPIFEQ(self):
         try:
-            if self.__evalExpr('==') == True:
+            if self.__evalExpr(lambda a, b: a == b, '==',) == True:
                 self.currentLine = self.labelList[self.currentInstruction.args[0].value]
-        except KeyError:
+        except KeyError: # label does not exist
             exit(ERR_SEMAN)
 
     def execJUMPIFNEQ(self):
         try:
-            if self.__evalExpr('!=') == True:
+            if self.__evalExpr(lambda a, b: a != b, '!=',) == True:
                 self.currentLine = self.labelList[self.currentInstruction.args[0].value]
-        except KeyError:
+        except KeyError: # label does not exist
             exit(ERR_SEMAN)
             
     def execDEFVAR(self):
-        frame, id = self.currentInstruction.args[0].getData(var=True)
-        if frame != 'GF' or frame != 'TF' or frame != 'LF': 
+        frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
+        frame = getattr(self, frame+'rame')
+        if id in frame: # attempt of variable redefinition
             exit(ERR_SEMAN)
-        exec(f'{frame}rame[frame+id] = self.currentInstruction.args[0]')
+        frame[id] = self.currentInstruction.args[0]
 
     def execPOPS(self):
         if len(self.callStack) == 0:
             exit(ERR_UNDEFVAR)
-        frame = self.currentInstruction.args[0].suffix
-        id = self.currentInstruction.args[0].id
-        if frame != 'GF' or frame != 'LF' or frame != 'TF':
+        frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
+        if frame != 'GF' and frame != 'LF' and frame != 'TF':
             exit(ERR_SEMAN)
-        poppedData = self.dataStack.pop()
-        exec(f'{frame}rame[id].set(poppedData)')
+        type, value = self.dataStack.pop()
+        frame = getattr(self, (frame+'rame'))[id].set({'suffix' : type, 'value' : value})
 
     def execPUSHS(self):
         if self.currentInstruction.args[0].value is None:
             exit(ERR_UNDEFVAR)
-        self.dataStack.append(self.currentInstruction.args[0])
+        type, value = self.currentInstruction.args[0].getData('type', 'value')
+        if type == 'var': 
+            exit(ERR_UNDEFVAR)
+        self.dataStack.append((type, value))
 
     def execWRITE(self):
-        dType, value, toPrint = self.currentInstruction.args[0].getData(var=False), None
+        value, toPrint = self.currentInstruction.args[0].getData('value'), None
         if value == 'nil': toPrint = ''
         else: toPrint = value
         print(toPrint, end='')
 
     def execEXIT(self):
-        pass
+        _type, value = self.currentInstruction.args[0].getData('suffix', 'value')
+        if _type != 'int' or int(value) > 49 or int(value) < 0:
+            exit(ERR_VALUE)
+        self.stats.writeStats()
+        exit(int(value))
+        
     def execDPRINT(self):
-        pass
+        toPrint = self.currentInstruction.args[0].getData('value')
+        if toPrint == 'nil':
+            toPrint = ''
+        print(toPrint, end='', file=sys.stderr)
+
     def execNOTS(self):
-        pass
+        type, value = self.dataStack.pop()
+        if type != 'bool' or value not in ('true', 'false'):
+            exit(ERR_TYPES)
+        value, _ = self.__str2bool(value, _)
+        self.dataStack.append(type, value)
+        
     def execINT2CHARS(self):
-        pass
+        type, value = self.dataStack.pop()
+        if type != 'int': exit(ERR_TYPES)
+        if 0 <= (int(value)) <= 256: exit(ERR_STRING)
+        self.dataStack.append('string', chr(int(value)))
+
     def execSTRI2INTS(self):
-        pass
+        type, value = self.dataStack.pop()
+
     def execADDS(self):
-        pass
+        self.__evalExpr(lambda a, b : a + b, '+', stack=True)
+
     def execSUBS(self):
-        pass
+        self.__evalExpr(lambda a, b : a - b, '-', stack=True)
+
     def execMULS(self):
-        pass
+        self.__evalExpr(lambda a, b : a * b, '*', stack=True)
+
     def execDIVS(self):
-        pass
+        self.__evalExpr(lambda a, b : a / b, '/', stack=True)
+        
     def execIDIVS(self):
-        pass
+        self.__evalExpr(lambda a, b : a // b, '//', stack=True)
+        
     def execLTS(self):
-        pass
+        self.__evalExpr(lambda a, b : a < b, '<', stack=True)
+
     def execGTS(self):
-        pass
+        self.__evalExpr(lambda a, b : a > b, '>', stack=True)
+
     def execEQS(self):
-        pass
+        self.__evalExpr(lambda a, b : a > b, '==', stack=True)
+
     def execANDS(self):
-        pass
+        self.__evalExpr(lambda a, b : a and b, '&&', stack=True)
+
     def execORS(self):
-        pass
+        self.__evalExpr(lambda a, b : a or b, '||', stack=True)
+
     def execMOVE(self):
-        pass
+        var = self.currentInstruction.args[0]
+        type, value, id = self.currentInstruction.args[1].getData('suffix', 'value', 'id')
+        frame = getattr(self, var.suffix+'rame')
+        if type in ('GF', 'LF', 'TF'): # if variable -> find in given frame
+            type, value = self.__findInFrame(type, id)
+        try:
+            if value is None:
+                exit(ERR_UNDEFVAR)
+            frame[var.id].set({'value' : value, 'type' : type})
+        except KeyError: 
+            exit(ERR_UNDECLVAR)
+
     def execINT2CHAR(self):
         pass
     def execSTRLEN(self):
         pass
     def execTYPE(self):
-        pass
+        var = self.currentInstruction.args[0]
+        type, id = self.currentInstruction.args[1].getData('suffix', 'id')
+        frame = getattr(self, var.suffix+'rame')
+        if type in ('GF', 'LF', 'TF'): # if variable -> find in given frame
+            type, _ = self.__findInFrame(type, id)
+        try:
+            frame[var.id].set({'value' : '' if type == 'var' else type, 'type' : 'string'})
+        except KeyError:
+            exit(ERR_UNDECLVAR)
+
     def execNOT(self):
-        pass
+        var = self.currentInstruction.args[0]
+        type, value, id = self.currentInstruction.args[1].getData('suffix', 'value', 'id')
+        frame = getattr(self, var.suffix+'rame')
+        if type in ('GF', 'LF', 'TF'): # if variable -> find in given frame
+            type, value = self.__findInFrame(type, id)
+        if type != 'bool':
+            exit(ERR_TYPES)
+        value, _ = self.__str2bool(value, _)
+        try:
+            frame[var.id].set({'value' : not value, 'type' : 'bool'})
+        except KeyError: 
+            exit(ERR_UNDECLVAR)
+        
     def execADD(self):
-        pass
+        self.__evalExpr(lambda a, b : a + b, '+')
+        
     def execSUB(self):
-        pass
+        self.__evalExpr(lambda a, b : a - b, '-')
+        
     def execMUL(self):
-        pass
+        self.__evalExpr(lambda a, b : a * b, '*')
+        
     def execIDIV(self):
-        pass
+        self.__evalExpr(lambda a, b : a / b, '/')
+        
     def execLT(self):
-        pass
+        self.__evalExpr(lambda a, b : a < b, '<')
+
     def execGT(self):
-        pass
+        self.__evalExpr(lambda a, b : a > b, '>')
+
     def execEQ(self):
-        pass
+        self.__evalExpr(lambda a, b : a == b, '==')
+
+    def execAND(self):
+        self.__evalExpr(lambda a, b : a and b, '&&')
+
     def execOR(self):
-        pass
+        self.__evalExpr(lambda a, b : a or b, '||')
+
     def execSTRI2INT(self):
         pass
     def execCONCAT(self):
-        pass
+        self.__evalExpr(lambda a, b : a + b, '..')
+
     def execGETCHAR(self):
-        pass
+        self.__evalExpr(lambda a, b : a[int(b)], 'GC')
+
     def execSETCHAR(self):
-        pass
+        frame, id = self.currentInstruction.args[0].getData('frame', 'id')
+        type, value = self.__findInFrame(frame, id)
+        if type != 'string' or value == '' or value is None:
+            exit(ERR_TYPES)
+        frame = getattr(self, frame+'rame')
+        type1, id1, value1 = self.currentInstruction.args[1].getData('suffix', 'id', 'value')
+        type2, id2, value2 = self.currentInstruction.args[2].getData('suffix', 'id', 'value')
+        if id1 is not None: # if symb1 (int) is variable
+            type1, value1 = self.__findInFrame(type1, id1)
+        if type1 != 'int':
+            exit(ERR_TYPES)
+        if not (0 <= value1 < len(value)):
+            exit(ERR_STRING)
+        if id2 is not None: # if symb2 (string) is variable
+            type2, value2 = self.__findInFrame(type2, id2)
+        if type2 != 'string':
+            exit(ERR_TYPES)
+        if value2 == '' or value2 is None:
+            exit(ERR_STRING)
+        frame[id].set({'value' : value[:value1] + value2[0] + value[value1+1:]})
+
     def execREAD(self):
         pass
 
@@ -363,8 +463,3 @@ def main():
     
 if __name__ == "__main__":
     main()
-
-    
-
-"""
-"""    

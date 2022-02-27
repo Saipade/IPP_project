@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <program language="IPPcode22">
-  <instruction order="79" opcode="EQ">
-    <arg1 type="var">LF@%check</arg1>
-    <arg2 type="var">LF@%j</arg2>
-    <arg3 type="nil">nil</arg3>
-  </instruction>
-  <instruction order="80" opcode="JUMPIFEQ">
-    <arg1 type="label">$substr$err8</arg1>
-    <arg2 type="var">LF@%check</arg2>
-    <arg3 type="bool">true</arg3>
-  </instruction>
-  <instruction order="81" opcode="GT">
-    <arg1 type="var">LF@%check</arg1>
-    <arg2 type="var">LF@%i</arg2>
-    <arg3 type="var">LF@%j</arg3>
-  </instruction>
-  <instruction order="1" opcode="DeFVAR">
+  <instruction order="1" opcode="DEFVAR">
     <arg1 type="var">GF@%tmp0</arg1>
   </instruction>
   <instruction order="2" opcode="DEFVAR">
@@ -170,6 +155,9 @@
   <instruction order="56" opcode="LABEL">
     <arg1 type="label">$tointeger$nil</arg1>
   </instruction>
+  <instruction order="57" opcode="EXIT">
+    <arg1 type="int">45</arg1>
+  </instruction>
   <instruction order="57" opcode="MOVE">
     <arg1 type="var">LF@%1%retval0</arg1>
     <arg2 type="nil">nil</arg2>
@@ -243,6 +231,21 @@
     <arg1 type="label">$substr$err8</arg1>
     <arg2 type="var">LF@%check</arg2>
     <arg3 type="bool">true</arg3>
+  </instruction>
+  <instruction order="79" opcode="EQ">
+    <arg1 type="var">LF@%check</arg1>
+    <arg2 type="var">LF@%j</arg2>
+    <arg3 type="nil">nil</arg3>
+  </instruction>
+  <instruction order="80" opcode="JUMPIFEQ">
+    <arg1 type="label">$substr$err8</arg1>
+    <arg2 type="var">LF@%check</arg2>
+    <arg3 type="bool">true</arg3>
+  </instruction>
+  <instruction order="81" opcode="GT">
+    <arg1 type="var">LF@%check</arg1>
+    <arg2 type="var">LF@%i</arg2>
+    <arg3 type="var">LF@%j</arg3>
   </instruction>
   <instruction order="82" opcode="JUMPIFEQ">
     <arg1 type="label">$substr$emptystr</arg1>
@@ -805,8 +808,11 @@
   </instruction>
   <instruction order="252" opcode="POPFRAME"/>
   <instruction order="253" opcode="RETURN"/>
-  <instruction order="254" opcode="CREATEFRAME"/>
-  <instruction order="255" opcode="CaLL">
+  <instruction order="254" opcode="LABEL">
+    <arg1 type="label">$over$main</arg1>
+  </instruction>
+  <instruction order="255" opcode="CREATEFRAME"/>
+  <instruction order="256" opcode="CALL">
     <arg1 type="label">$main</arg1>
   </instruction>
 </program>
