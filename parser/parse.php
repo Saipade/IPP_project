@@ -20,6 +20,7 @@
     $parser->parseCode();
 
     $parser->makeupStats();
+    
     $parser->stats->writeStats();
 
     $xml = new DomDocument('1.0', 'UTF-8');

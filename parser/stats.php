@@ -26,10 +26,7 @@
         private $labelIds = array();
         private $jumpDestinations = array();
         
-        /**
-         * Makes Stats class a singleton
-         */
-        public static function Connect() {
+        public static function connect() {
             if (!isset(self::$connection))
                 self::$connection = new Stats;
             return self::$connection;
@@ -58,7 +55,9 @@
             array_push($this->labelIds, $label);
         }
 
-        // special case for RETURN instruction; other jumps are handled by addJump method
+        /**
+         * Special case for RETURN instruction; other jumps are handled by addJump method 
+         */ 
         public function incJumps() {
             $this->jumps++;
         }
@@ -87,15 +86,14 @@
             // check if there are duplicates in files array
             if (count(array_keys($this->groups)) != count(array_unique(array_keys($this->groups))))
                 exit(ERR_OUTPUT);
-
+            
             foreach ($this->groups as $file => $group) {
                 $outFile = fopen($file, "w");
                 $statsText = "";
                 foreach ($group as $option) {
                     $statsText .= $this->{$option}."\n";
                 }
-                if (!fwrite($outFile, $statsText))
-                    exit(ERR_OUTPUT);
+                fwrite($outFile, $statsText);
                 fclose($outFile);
             }
         }

@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from sets import instructionSet
-from argument import Argument
+from argument import *
 from errorslist import *
 import importlib
 
@@ -25,3 +25,6 @@ class Instruction:
                 exit(ERR_STRUCT)
             # dynamic argument instantiation
             self.args[i] = getattr(argument, instructionSet[self.opCode][i])(xmlInstruction.find(f'arg{i+1}'))
+
+    def __str__(self):
+        return f'{self.order}: {self.opCode} {self.args[0]} {self.args[1]} {self.args[2]}'

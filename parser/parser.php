@@ -7,13 +7,17 @@
  * File contains implementation of Parser class
  */
 
+
     class Parser {
 
         private $code = array();                                                            // array of Instructions
         private $currentLine = 1;                                                           // current line of code
+        public $stats;                                                                      // Stats class object
+        private $instFactory;                                                               // CodeFactory class object, is required for instruction construction
 
         public function __construct() {
-            $this->stats = Stats::Connect();
+            $this->stats = Stats::connect();
+            $this->instFactory = CodeFactory::connect();
         }
 
         /**
@@ -101,7 +105,7 @@
                     continue;
                 }
                 
-                $instruction = new Instruction($line, $this->currentLine);
+                $instruction = $this->instFactory->createInstruction($line, $this->currentLine);
                 $this->addInst($instruction);
             }
         }

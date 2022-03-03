@@ -1,11 +1,8 @@
-.IPPcode22
 DEFVAR GF@%tmp0
 DEFVAR GF@%tmp1
 DEFVAR GF@%tmp2
 DEFVAR GF@%expResult
 JUMP $over$reads
-
-# Function reads
 LABEL $reads
 PUSHFRAME
 DEFVAR LF@%1%retval0
@@ -14,26 +11,18 @@ READ LF@%1%retval0 string
 LABEL $reads$ret
 POPFRAME
 RETURN
-
 LABEL $over$reads
-
 JUMP $over$readi
-
-# Function readi
 LABEL $readi
 PUSHFRAME
-DEFVAR LF@retval
-MOVE LF@retval nil@nil
+DEFVAR LF@%1%retval0
+MOVE LF@%1%retval0 nil@nil
 READ LF@%1%retval0 int
 LABEL $readi$ret
 POPFRAME
 RETURN
-
 LABEL $over$readi
-
 JUMP $over$readn
-
-# Function readn
 LABEL $readn
 PUSHFRAME
 DEFVAR LF@%1%retval0
@@ -42,12 +31,8 @@ READ LF@%1%retval0 float
 LABEL $readn$ret
 POPFRAME
 RETURN
-
 LABEL $over$readn
-
 JUMP $over$write
-
-# Function write
 LABEL $write
 PUSHFRAME
 JUMPIFEQ $write$nil LF@%0 nil@nil
@@ -58,12 +43,8 @@ WRITE string@nil
 LABEL $write$ret
 POPFRAME
 RETURN
-
 LABEL $over$write
-
 JUMP $over$tointeger
-
-# Function tointeger
 LABEL $tointeger
 PUSHFRAME
 DEFVAR LF@%1%retval0
@@ -76,12 +57,8 @@ MOVE LF@%1%retval0 nil@nil
 LABEL $tointeger$ret
 POPFRAME
 RETURN
-
 LABEL $over$tointeger
-
 JUMP $over$substr
-
-# Function substr
 LABEL $substr
 PUSHFRAME
 DEFVAR LF@%s
@@ -130,12 +107,8 @@ EXIT int@8
 LABEL $substr$ret
 POPFRAME
 RETURN
-
 LABEL $over$substr
-
 JUMP $over$ord
-
-# Function ord
 LABEL $ord
 PUSHFRAME
 DEFVAR LF@%s
@@ -167,12 +140,8 @@ EXIT int@8
 LABEL $ord$ret
 POPFRAME
 RETURN
-
 LABEL $over$ord
-
 JUMP $over$chr
-
-# Function chr
 LABEL $chr
 PUSHFRAME
 DEFVAR LF@%i
@@ -194,15 +163,9 @@ EXIT int@8
 LABEL $chr$ret
 POPFRAME
 RETURN
-
 LABEL $over$chr
-
-
 JUMP $over$factorial
-
-# Function factorial:
-
-LABEL $factorial
+LABEL $factorial # FACTORIAL
 PUSHFRAME
 DEFVAR LF@%1%n
 MOVE LF@%1%n LF@%0
@@ -218,13 +181,13 @@ PUSHS LF@%1%n
 PUSHS int@2
 LTS
 POPS GF@%expResult
-JUMPIFNEQ $factorial$0$if$else GF@%expResult bool@true
+JUMPIFNEQ $factorial$0$if$else GF@%expResult bool@true # if n < 2
 PUSHS int@1
 POPS GF@%expResult
 MOVE LF@%1%retval0 GF@%expResult
 JUMP $factorial$ret
 JUMP $factorial$0$if$end
-LABEL $factorial$0$if$else
+LABEL $factorial$0$if$else # else
 DEFVAR LF@%2%tmp
 MOVE LF@%2%tmp int@0
 CREATEFRAME
@@ -242,17 +205,9 @@ LABEL $factorial$0$if$end
 LABEL $factorial$ret
 POPFRAME
 RETURN
-
-# End of function factorial
-
 LABEL $over$factorial
-
-
 JUMP $over$main
-
-# Function main:
-
-LABEL $main
+LABEL $main ## MAIN
 PUSHFRAME
 PUSHS string@Zadejte\032cislo\032pro\032vypocet\032faktorialu:\032
 POPS GF@%expResult
@@ -295,7 +250,7 @@ MOVE LF@%3%vysl int@0
 CREATEFRAME
 DEFVAR TF@%0
 MOVE TF@%0 LF@%1%a
-CALL $factorial
+CALL $factorial # FACTORIAL
 MOVE LF@%3%vysl TF@%1%retval0
 PUSHS string@Vysledek\032je\032
 POPS GF@%expResult
@@ -328,10 +283,6 @@ LABEL $main$0$if$end
 LABEL $main$ret
 POPFRAME
 RETURN
-
-# End of function main
-
 LABEL $over$main
-
 CREATEFRAME
 CALL $main

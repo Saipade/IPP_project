@@ -31,7 +31,7 @@
     /**
      * Class utilizing factory method, creates array of Argument class objects
      */
-    class ArgumentFactory {
+    /* class ArgumentFactory {
 
         public function createArguments($opCode, $argumentsStr) : array {
             global $instructionSet;
@@ -44,7 +44,7 @@
             return $newArguments;
         }
 
-    }
+    } */
 
     /**
      * Class representing <var> nonterminal

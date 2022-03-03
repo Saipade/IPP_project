@@ -10,24 +10,25 @@
     include 'regex.php';
     include 'sets.php';
     include 'argument.php';
+    include 'factory.php';
 
     /**
      * Represents any meaningful line of code
      */
     class Instruction {
 
-        private $opCode;                            // operation code attribute
-        private $arguments = array();               // arguments as strings from input line
-        private $argFactory;                        // object for argument creation
-        private $argumentsA = array();              // arguments as Argument class objects
-        private $order;                             // order attribute
+        private $opCode;                                // operation code attribute
+        private $arguments = array();                   // arguments as strings from input line
+        private $argFactory;                            // factory for instruction's arguments construction
+        private $argumentsA = array();                  // arguments as Argument class objects
+        private $order;                                 // order attribute
 
         public function __construct($line, $lineNumber) {
             $explodedLine = explode(" ", $line);
             $this->opCode = strtoupper($explodedLine[0]);
             $this->checkOpCode();
             $this->arguments = array_slice($explodedLine, 1);
-            $this->argFactory = new ArgumentFactory();
+            $this->argFactory = CodeFactory::connect();
             $this->createArgs();
             $this->order = $lineNumber;
         }

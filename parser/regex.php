@@ -14,7 +14,7 @@
     define("boolPattern", "/^(true|false)$/");
     define("nilPattern", "/^(nil)$/");
     define("stringPattern", "/^(\\\\\d\d\d|(?!\#|\\\\).)*$/u");
-    define("typePattern", "/^(int|string|bool)$/");
+    define("typePattern", "/^(int|string|bool|float)$/");
     define("jumpPattern", "/^((JUMP)(.*)|CALL)$/");
 
 ?>
