@@ -1,16 +1,7 @@
-from msilib.schema import Error
-from pickletools import optimize
-from pyexpat import ErrorString
-from pyexpat.errors import XML_ERROR_INCOMPLETE_PE
-import readline
-from sre_constants import NOT_LITERAL
-from subprocess import call
-from webbrowser import get
 import xml.etree.ElementTree as ET
 import getopt
 import sys
 import re
-from xml.sax.saxutils import XMLFilterBase
 
 from instruction import Instruction
 from sets import *
@@ -24,8 +15,6 @@ class Interpreter:
         self.inputFile = sys.stdin                      # text with input for source code interpretation
 
         self.stats = Stats()                            # Stats class attribute
-
-        self.instructionList = []                       # list of instructions
 
         self.GFrame = {}                                # dictionary of global frame variables of shape <varID> -> Argument class object
         self.LFrame = {}                                # dictionary on top of framesStack of shape <varID> -> Argument class object
@@ -97,7 +86,7 @@ class Interpreter:
         '''
         Iterates through input code 2 times,
         first -- finds all labels,
-        second -- executes instructions from instruction list
+        second -- executes instructions
         '''
         for _, xmlInstruction in enumerate(self.xmlTree):
             self.currentInstruction = Instruction(xmlInstruction)
@@ -154,8 +143,8 @@ class Interpreter:
         '''
         operand1, operand2 = self.__getValues(stack)
         _type = self.__getType(op)
-
-        if operand1 == 'nil' or operand2 == 'nil':
+        # if one of operands is either 'nil' or None (None represents nil type)
+        if operand1 == 'nil' or operand2 == 'nil' or operand1 == None or operand2 == None:
             if op not in ('==', '!='):
                 exit(ERR_TYPES)
             if operand1 == 'nil': operand1 = None
@@ -165,11 +154,8 @@ class Interpreter:
         if stack is True: self.dataStack.append((_type, retval))
         else: return _type, retval
 
-    def __str2bool(self, str1, str2):
-        for str in [str1, str2]:
-            if str == 'true' or str is True: str = True
-            elif str == 'false' or str is False: str = False
-        return str1, str2
+    def __findFrame(self, frame):
+        return getattr(self, frame+'rame')
 
     def __findInFrame(self, frame, id):
         try:
@@ -177,9 +163,6 @@ class Interpreter:
         except KeyError:
             exit(ERR_UNDECLVAR)
         return (type, value)
-
-    def __escrepl(self, matchobj):
-        return chr(int(matchobj.group(0)[1]+matchobj.group(0)[2]+matchobj.group(0)[3]))
 
     '''
     Instruction list
@@ -275,7 +258,7 @@ class Interpreter:
             
     def execDEFVAR(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         if id in frame: # attempt of variable redefinition
             exit(ERR_SEMAN)
         frame[id] = self.currentInstruction.args[0]
@@ -284,9 +267,10 @@ class Interpreter:
         if len(self.dataStack) == 0:
             exit(ERR_UNDEFVAR)
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
+        frame = self.__findFrame(frame)
         type, value = self.dataStack.pop()
         try:
-            getattr(self, frame+'rame')[id].set({'type' : type, 'value' : value})
+            frame[id].set({'type' : type, 'value' : value})
         except KeyError:
             exit(ERR_UNDECLVAR)
 
@@ -300,9 +284,12 @@ class Interpreter:
         type, id, toPrint = self.currentInstruction.args[0].getData('suffix', 'id', 'value')
         if id is not None:
             type, toPrint = self.__findInFrame(type, id)
-        if type == 'string':
+        if type == 'string': # convert all escape sequences 
             toPrint = re.sub(r'\\([0-9]{3})', lambda x: chr(int(x[1])), toPrint)
-        if toPrint == 'nil': toPrint = ''
+        if type == 'bool': # convert bool2str
+            toPrint = str(toPrint).lower()
+        if toPrint == 'nil': 
+            toPrint = ''
         print(toPrint, end='', file=sys.stdout)
 
     def execEXIT(self):
@@ -324,14 +311,13 @@ class Interpreter:
         type, value = self.dataStack.pop()
         if type != 'bool':
             exit(ERR_TYPES)
-        value, _ = self.__str2bool(value, 'false')
         self.dataStack.append((type, not value))
         
     def execINT2CHARS(self):
         type, value = self.dataStack.pop()
         if type != 'int': 
             exit(ERR_TYPES)
-        if 0 <= (int(value)) <= 256: 
+        if not (0 <= value <= 255):
             exit(ERR_STRING)
         self.dataStack.append('string', chr(int(value)))
 
@@ -371,7 +357,7 @@ class Interpreter:
     def execMOVE(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
         type, value, id1 = self.currentInstruction.args[1].getData('suffix', 'value', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         if type in ('GF', 'LF', 'TF'): # if variable -> find in given frame
             type, value = self.__findInFrame(type, id1)
         try:
@@ -384,7 +370,7 @@ class Interpreter:
     def execINT2CHAR(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
         type, id1, value = self.currentInstruction.args[1].getData('suffix', 'id', 'value')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         if type in ('LF', 'GF', 'TF'):
             type, value = self.__findInFrame(type, id1)
         if not (0 <= value <= 1114111): # invalid value 0 <= i <= 0x10ffff
@@ -395,104 +381,106 @@ class Interpreter:
         
     def execSTRLEN(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
-        type, value = self.__evalExpr(lambda a, b : a + b, '+')
+        type, id1, value = self.currentInstruction.args[1].getData('suffix', 'id', 'value')
+        if type in ('GF', 'LF', 'TF'):
+            type, value = self.__findInFrame(type, id1)
+        frame = self.__findFrame(frame)
+        
         frame[id].set({'type' : type, 'value' : value})
 
     def execTYPE(self):
-        var = self.currentInstruction.args[0]
-        type, id = self.currentInstruction.args[1].getData('suffix', 'id')
-        frame = getattr(self, var.suffix+'rame')
+        frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
+        type, id1 = self.currentInstruction.args[1].getData('suffix', 'id')
+        frame = self.__findFrame(frame)
         if type in ('GF', 'LF', 'TF'): # if variable -> find in given frame
-            type, _ = self.__findInFrame(type, id)
+            type, _ = self.__findInFrame(type, id1)
         try:
-            frame[var.id].set({'value' : '' if type == 'var' else type, 'type' : 'string'})
+            frame[id].set({'value' : '' if type == 'var' else type, 'type' : 'string'})
         except KeyError:
             exit(ERR_UNDECLVAR)
 
     def execNOT(self):
-        var = self.currentInstruction.args[0]
-        type, value, id = self.currentInstruction.args[1].getData('suffix', 'value', 'id')
-        frame = getattr(self, var.suffix+'rame')
+        frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
+        type, value, id1 = self.currentInstruction.args[1].getData('suffix', 'value', 'id')
+        frame = self.__findFrame(frame)
         if type in ('GF', 'LF', 'TF'): # if variable -> find in given frame
-            type, value = self.__findInFrame(type, id)
+            type, value = self.__findInFrame(type, id1)
         if type != 'bool':
             exit(ERR_TYPES)
-        value, _ = self.__str2bool(value, 'false')
         try:
-            frame[var.id].set({'value' : not value, 'type' : 'bool'})
+            frame[id].set({'value' : not value, 'type' : 'bool'})
         except KeyError: 
             exit(ERR_UNDECLVAR)
         
     def execADD(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a + b, '+')
         frame[id].set({'type' : type, 'value' : value})
         
     def execSUB(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a - b, '-')
         frame[id].set({'type' : type, 'value' : value})
         
     def execMUL(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a * b, '*')
         frame[id].set({'type' : type, 'value' : value})
         
     def execIDIV(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a // b, '//')
         frame[id].set({'type' : type, 'value' : value})
         
     def execLT(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a < b, '<')
         frame[id].set({'type' : type, 'value' : value})
 
     def execGT(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a > b, '>')
         frame[id].set({'type' : type, 'value' : value})
 
     def execEQ(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a == b, '==')
         frame[id].set({'type' : type, 'value' : value})
 
     def execAND(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a and b, '&&')
         frame[id].set({'type' : type, 'value' : value})
 
     def execOR(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a or b, '||')
         frame[id].set({'type' : type, 'value' : value})
 
     def execSTRI2INT(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : ord(a[b]), 'ORD', stack=True)
         frame[id].set({'type' : type, 'value' : value})
         
     def execCONCAT(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a + b, '..')
         frame[id].set({'type' : type, 'value' : value})
 
     def execGETCHAR(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type, value = self.__evalExpr(lambda a, b : a[int(b)], 'GC')
         frame[id].set({'type' : type, 'value' : value})
 
@@ -501,7 +489,7 @@ class Interpreter:
         type, value = self.__findInFrame(frame, id)
         if type != 'string' or value == '' or value is None:
             exit(ERR_TYPES)
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         type1, id1, value1 = self.currentInstruction.args[1].getData('suffix', 'id', 'value')
         type2, id2, value2 = self.currentInstruction.args[2].getData('suffix', 'id', 'value')
         if id1 is not None: # if symb1 (int) is variable
@@ -523,7 +511,7 @@ class Interpreter:
         readLine = input() if self.inputFile is None else self.inputFile.readline().strip()
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
         readType = self.currentInstruction.args[1].value
-        frame = getattr(self, frame+'rame')
+        frame = self.__findFrame(frame)
         if readType == 'int':
             newValue = int(readLine)
             newType = 'int'
@@ -531,7 +519,6 @@ class Interpreter:
             newValue = str(readLine)
             newType = 'string'
         if readType == 'bool':
-            newValue, _ = self.__str2bool(newValue, 'false')
             newType = 'bool'
         if readLine == '':
             newValue = 'nil'
@@ -546,7 +533,7 @@ def main():
     interpreter = Interpreter()
     interpreter.parseArguments()
     interpreter.executeProgram()
-    interpreter.stats.writeStats()
+   # interpreter.stats.writeStats()
     
 if __name__ == "__main__":
     main()

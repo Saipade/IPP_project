@@ -50,6 +50,18 @@ class Stats:
         return list(sorted(list(self.hotInstructions.items()), key=lambda x: (x[1][0], 1/x[1][1]), reverse=True))[0][1][0] # too lon' :(
 
     def writeStats(self):
-        pass
+        self.hot = self.__findTheHottest()
+        print(self.statsGroups)
+        for fileName in self.statsGroups:
+            if fileName is None:
+                continue
+            print(fileName)
+            file = open(fileName, 'w')
+            statsText = ''
+            for stat in self.statsGroups[fileName]:
+                statsText += f'{getattr(self, stat)}\n'
+            file.write(statsText)
+            file.close()
+
     
 
