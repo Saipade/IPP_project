@@ -129,6 +129,9 @@
             foreach ($this->code as $instruction) {
                 if (preg_match(jumpPattern, $instruction->getOpCode())) 
                     $this->stats->addJump($instruction->getArg(0));
+
+                elseif (!strcmp("RETURN", $instruction->getOpCode()))
+                    $this->stats->incJumps();
                                 
                 elseif ($instruction->getOpCode() == "LABEL") 
                     $this->stats->addLabel($instruction->getArg(0));

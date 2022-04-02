@@ -1,5 +1,3 @@
-from asyncore import read
-import readline
 import xml.etree.ElementTree as ET
 import getopt
 import sys
@@ -15,8 +13,6 @@ class Interpreter:
     def __init__(self):
         self.xmlTree = None                             # XML tree of input XML code representation
         self.inputFile = sys.stdin                      # text with input for source code interpretation
-        self.input = []                                 # input list (for case if there is input file)
-        self.orders = []                                # list of orders (no duplicates, all should be positive)
 
         self.stats = Stats()                            # Stats class attribute
 
@@ -38,21 +34,21 @@ class Interpreter:
         ''' 
         try:
             opts, _ = getopt.getopt(sys.argv[1:], '', ['help', 'source=', 'input=', 'stats=', 'insts', 'hot', 'vars'])
-        except getopt.GetoptError:
+        except getopt.GetoptError as err:
             exit(ERR_PARAM)
         tmpList, sIsPresent, iIsPresent, stIsPresent, xmlFile, statsFile = list(), 0, 0, 0, None, None
         for opt, arg in opts:
             if opt in ('--help'):
-                if len(sys.argv) != 2: # --help is present along with other command line options
+                if len(sys.argv) != 2:
                     exit(ERR_PARAM)
                 print(help)
                 exit(INTER_OK)
             elif opt in ('--source'):
-                if sIsPresent == 1: # if there is more than 1 source file -> error
+                if sIsPresent == 1:
                     exit(ERR_PARAM)
                 sIsPresent = 1
                 xmlFile = arg
-            elif opt in ('--input'): # if there is more than 1 input file -> error
+            elif opt in ('--input'):
                 if iIsPresent == 1:
                     exit(ERR_PARAM)
                 iIsPresent = 1
@@ -65,35 +61,26 @@ class Interpreter:
                 tmpList = list()
                 statsFile = arg
             elif opt in ('--insts', '--hot', '--vars') and stIsPresent > 0:
-                tmpList.append(opt[2:]) # appends stat name to temporary list, will be added to statsGroups dictionary later
+                tmpList.append(opt[2:])
             else:
                 exit(ERR_PARAM)
-            if stIsPresent == 1:
-                self.stats.statsGroups[statsFile] = tmpList
-        # no input and no source -> error
+            self.stats.statsGroups[statsFile] = tmpList
+        # no input and no source => error
         if sIsPresent == 0 and iIsPresent == 0:
             exit(ERR_PARAM)
+            
         self.__readFile(xmlFile)
 
     def __readFile(self, xmlFile):
         '''
         Reads given files into 2 corresponding interpreter attributes
         '''
-        # xmlTree - root XMLElement (program)
-        try:
-            self.xmlTree = ET.parse(sys.stdin).getroot() if xmlFile is None else ET.parse(xmlFile).getroot()
-        except ET.ParseError:
+        # xmlTree -- root XMLElement, 
+        self.xmlTree = ET.parse(sys.stdin).getroot() if xmlFile is None else ET.parse(xmlFile).getroot()
+        if self.xmlTree.tag != 'program':
             exit(ERR_FORMAT)
-        if self.xmlTree.tag != 'program' or (self.xmlTree.get('language') != 'IPPcode22' and self.xmlTree.get('language') != 'IPPcode20' and self.xmlTree.get('language') != 'IPPcode21'):
-            exit(ERR_STRUCT)
-        if self.inputFile is not sys.stdin: # read input file into self.input list (if there is input file)
-            with open(self.inputFile, 'r') as file:
-                self.input = file.read().splitlines()
         # sort instructions by order
-        try:
-            self.xmlTree[:] = sorted(self.xmlTree, key=lambda child: int(re.search('\d+', child.get('order')).group()))
-        except:
-            exit(ERR_STRUCT)
+        self.xmlTree[:] = sorted(self.xmlTree, key=lambda child: int(re.search('\d+', child.get('order')).group()))
         
     def executeProgram(self):
         '''
@@ -103,9 +90,6 @@ class Interpreter:
         '''
         for _, xmlInstruction in enumerate(self.xmlTree):
             self.currentInstruction = Instruction(xmlInstruction)
-            if self.currentInstruction.order in self.orders or self.currentInstruction.order < 1:
-                exit(ERR_STRUCT)
-            self.orders.append(self.currentInstruction.order)
             if self.currentInstruction.opCode == 'LABEL':
                 self.execL483L()
             self.currentLine += 1
@@ -113,7 +97,6 @@ class Interpreter:
         self.currentLine = 0
         while True:
             self.currentInstruction = Instruction(self.xmlTree[self.currentLine])
-            #print(self.currentInstruction)
             getattr(self, 'exec'+self.currentInstruction.opCode)()
             self.stats.updateInsts(self.currentInstruction)
             self.stats.updateHot(self.currentInstruction)
@@ -121,13 +104,13 @@ class Interpreter:
             if (self.currentLine == len(self.xmlTree)):
                 break
 
-    def __getValues(self, op, stack=False):
+    def __getValues(self, stack=False):
         '''
         Returns variables' values (if there are variables in expression), checks type compatibility
         '''
         if stack is True:
-            opType2, opVal2 = self.dataStack.pop()
-            opType1, opVal1 = self.dataStack.pop()
+            opType1, opVal1 = self.dataStack.pop() # symb1
+            opType2, opVal2 = self.dataStack.pop() # symb2
         else:
             (opType1, opVal1), (opType2, opVal2) = \
             self.currentInstruction.args[1].getData('suffix', 'id'), self.currentInstruction.args[2].getData('suffix', 'id')
@@ -139,35 +122,18 @@ class Interpreter:
                 opType2, opVal2 = self.__findInFrame(opType2, opVal2)
             else:
                 opType2, opVal2 = self.currentInstruction.args[2].getData('suffix', 'value')
-        # type compatibility checks
-        if op in ('+', '-', '//', '/', '*') and (opType1 != 'int' or opType2 != 'int'):
+        if opType1 != opType2 and opVal1 != 'nil' and opVal2 != 'nil':
             exit(ERR_TYPES)
-        if op in ('>', '<') and (opType1 != opType2):
-            exit(ERR_TYPES)
-        if op in ('==', '!=') and ((opType1 != opType2) and (opType1 != 'nil' and opType2 != 'nil')):
-            exit(ERR_TYPES)
-        if op in ('&&', '||') and (opType1 != 'bool' or opType2 != 'bool'):
-            exit(ERR_TYPES)
-        if op in ('..') and (opType1 != 'string' or opType2 != 'string'):
-            exit(ERR_TYPES)
-        if op in ('GC') and (opType1 != 'string' or opType2 != 'int'):
-            exit(ERR_TYPES)
-        if op in ('ORD'):
-            if (opType1 != 'string' or opType2 != 'int'):
-                exit(ERR_TYPES)
-            if len(opVal1) <= opVal2 or opVal2 < 0:
-                exit(ERR_STRING)
         return opVal1, opVal2
     
     def __getType(self, op):
         '''
-        Returns expression's result type
         '''
         if op in ('==', '!=', '>', '<', '&&', '||'):
             type = 'bool'
-        elif op in ('+', '-', '*', '/', '//', 'ORD'):
+        elif op in ('+', '-', '*', '/', '//', 'ORD', 'slen'):
             type = 'int'
-        elif op in ('..', 'GC'):
+        elif op in ('..', 'GC', 'CHR'):
             type = 'string'
         return type
 
@@ -175,30 +141,27 @@ class Interpreter:
         '''
         Evaluates given expression
         '''
-        operand1, operand2 = self.__getValues(op, stack)
-        type = self.__getType(op)
+        operand1, operand2 = self.__getValues(stack)
+        _type = self.__getType(op)
         # if one of operands is either 'nil' or None (None represents nil type)
-        if operand1 == 'nil': operand1 = None
-        if operand2 == 'nil': operand2 = None
-        try:
-            retval = lfunc(operand1, operand2)
-        except:
-            exit(ERR_VALUE)
-        if stack is True: self.dataStack.append((type, retval))
-        else: return type, retval
+        if operand1 == 'nil' or operand2 == 'nil' or operand1 == None or operand2 == None:
+            if op not in ('==', '!='):
+                exit(ERR_TYPES)
+            if operand1 == 'nil': operand1 = None
+            if operand2 == 'nil': operand2 = None
+        
+        retval = lfunc(operand2, operand1)
+        if stack is True: self.dataStack.append((_type, retval))
+        else: return _type, retval
 
     def __findFrame(self, frame):
-        frame =  getattr(self, frame+'rame')
-        if frame is None:
-            exit(ERR_NOFRAME)
-        return frame
-        
+        return getattr(self, frame+'rame')
 
     def __findInFrame(self, frame, id):
         try:
             type, value = getattr(self, frame+'rame')[id].getData('type', 'value')
-        except:
-            exit(ERR_NOFRAME)
+        except KeyError:
+            exit(ERR_UNDECLVAR)
         return (type, value)
 
     '''
@@ -267,16 +230,14 @@ class Interpreter:
 
     def execJUMPIFEQS(self):
         try:
-            self.__evalExpr(lambda a, b: a == b, '==', stack=True)
-            if self.dataStack[-1][1] is True:
+            if self.__evalExpr(lambda a, b: a == b, '==', stack=True)[1] == True:
                 self.currentLine = self.labelList[self.currentInstruction.args[0].value]
         except KeyError: # label does not exist
             exit(ERR_SEMAN)
             
     def execJUMPIFNEQS(self):
         try:
-            self.__evalExpr(lambda a, b: a != b, '!=', stack=True)
-            if self.dataStack[-1][1] is True:
+            if self.__evalExpr(lambda a, b: a != b, '!=', stack=True)[1] == True:
                 self.currentLine = self.labelList[self.currentInstruction.args[0].value]
         except KeyError: # label does not exist
             exit(ERR_SEMAN)
@@ -358,7 +319,7 @@ class Interpreter:
             exit(ERR_TYPES)
         if not (0 <= value <= 255):
             exit(ERR_STRING)
-        self.dataStack.append(('string', chr(value)))
+        self.dataStack.append('string', chr(int(value)))
 
     def execSTRI2INTS(self):
         self.__evalExpr(lambda a, b : ord(a[b]), 'ORD', stack=True)
@@ -546,11 +507,8 @@ class Interpreter:
         frame[id].set({'value' : value[:value1] + value2[0] + value[value1+1:]})
 
     def execREAD(self):
-        if self.inputFile is sys.stdin: # read from stdin
-            readLine = input()
-        else:                           # read from input file
-            readLine = self.input[0]
-            self.input = self.input[1:]
+        self.inputFile = open(self.inputFile, 'r')
+        readLine = input() if self.inputFile is None else self.inputFile.readline().strip()
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
         readType = self.currentInstruction.args[1].value
         frame = self.__findFrame(frame)
@@ -561,12 +519,6 @@ class Interpreter:
             newValue = str(readLine)
             newType = 'string'
         if readType == 'bool':
-            if readLine.lower() == 'true':
-                newValue = True
-            elif readLine.lower() == 'false':
-                newValue = False
-            else:
-                exit(ERR_TYPES)
             newType = 'bool'
         if readLine == '':
             newValue = 'nil'
@@ -577,10 +529,11 @@ class Interpreter:
             exit(ERR_UNDECLVAR)
 
 def main():
+
     interpreter = Interpreter()
     interpreter.parseArguments()
     interpreter.executeProgram()
-    interpreter.stats.writeStats()
+   # interpreter.stats.writeStats()
     
 if __name__ == "__main__":
     main()

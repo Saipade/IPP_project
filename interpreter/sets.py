@@ -1,6 +1,5 @@
 __all__ = ['instructionSet', 'help']
 
-# dictionary of instructions and argument types related to them
 instructionSet = {
     'CREATEFRAME' : [],
     'PUSHFRAME' : [],
@@ -21,19 +20,19 @@ instructionSet = {
     'WRITE' : ['Symbol'],
     'EXIT' : ['Symbol'],
     'DPRINT' : ['Symbol'],
-    'NOTS' : [],
-    'INT2CHARS' : [],
-    'STRI2INTS' : [],
-    'ADDS' : [],
-    'SUBS' : [],
-    'MULS' : [],
-    'DIVS' : [],
-    'IDIVS' : [],
-    'LTS' : [],
-    'GTS' : [],
-    'EQS' : [],
-    'ANDS' : [],
-    'ORS' : [],
+    'NOTS' : ['Symbol'],
+    'INT2CHARS' : ['Symbol'],
+    'STRI2INTS' : ['Symbol'],
+    'ADDS' : ['Symbol', 'Symbol'],
+    'SUBS' : ['Symbol', 'Symbol'],
+    'MULS' : ['Symbol', 'Symbol'],
+    'DIVS' : ['Symbol', 'Symbol'],
+    'IDIVS' : ['Symbol', 'Symbol'],
+    'LTS' : ['Symbol', 'Symbol'],
+    'GTS' : ['Symbol', 'Symbol'],
+    'EQS' : ['Symbol', 'Symbol'],
+    'ANDS' : ['Symbol', 'Symbol'],
+    'ORS' : ['Symbol', 'Symbol'],
     'MOVE' : ['Variable', 'Symbol'],
     'INT2CHAR' : ['Variable', 'Symbol'],
     'STRLEN' : ['Variable', 'Symbol'],
@@ -54,14 +53,7 @@ instructionSet = {
     'SETCHAR' : ['Variable', 'Symbol', 'Symbol'],
     'READ' : ['Variable', 'Type']}
 
-# --help text
-help = \
-    "Usage: interpret.py [--source=SOURCE_FILE] [--input=INPUT_FILE] [--stats=STATS_FILE] [--insts] [--hot] [--vars]\n" \
-    "Arguments:\n\t" \
-    "--help shows help message and exits\n\t" \
-    "--source=SOURCE_FILE indicates source file\n\t" \
-    "--input=INPUT_FILE indicates input file\n\t" \
-    "--stats=STATS_FILE indicates stats file\n\t\t" \
-    "--insts stats option, counts \"executable\" instructions\n\t\t" \
-    "--hot stats option, finds the most used instruction\n\t\t" \
+help = "Usage: interpret.py [--source=SOURCE_FILE] [--input=INPUT_FILE] [--stats=STATS_FILE] [--insts] [--hot] [--vars]\n\n" \
+    "Arguments:\n\t--help shows help message and exits\n\t--source=SOURCE_FILE indicates source file\n\t--input=INPUT_FILE indicates input file\n\t" \
+    "--stats=STATS_FILE indicates stats file\n\t\t--insts stats option, counts \"executable\" instructions\n\t\t--hot stats option, finds the most used instruction\n\t\t" \
     "--vars stats option, counts maximum number of initialized variables at a time"

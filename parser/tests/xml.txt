@@ -719,102 +719,104 @@
     <arg1 type="var">LF@%1%a</arg1>
     <arg2 type="var">TF@%1%retval0</arg2>
   </instruction>
-  <instruction order="223" opcode="CREATEFRAME"/>
-  <instruction order="224" opcode="DEFVAR">
-    <arg1 type="var">TF@%0</arg1>
-  </instruction>
-  <instruction order="225" opcode="MOVE">
-    <arg1 type="var">TF@%0</arg1>
-    <arg2 type="var">LF@%1%a</arg2>
-  </instruction>
-  <instruction order="226" opcode="CALL">
-    <arg1 type="label">$write</arg1>
-  </instruction>
-  <instruction order="227" opcode="CREATEFRAME"/>
-  <instruction order="228" opcode="CALL">
-    <arg1 type="label">$readi</arg1>
-  </instruction>
-  <instruction order="229" opcode="MOVE">
-    <arg1 type="var">LF@%1%a</arg1>
-    <arg2 type="var">TF@%1%retval0</arg2>
-  </instruction>
-  <instruction order="230" opcode="PUSHS">
+  <instruction order="223" opcode="PUSHS">
     <arg1 type="var">LF@%1%a</arg1>
   </instruction>
-  <instruction order="231" opcode="PUSHS">
+  <instruction order="224" opcode="PUSHS">
     <arg1 type="nil">nil</arg1>
   </instruction>
-  <instruction order="232" opcode="EQS"/>
-  <instruction order="233" opcode="NOTS"/>
-  <instruction order="234" opcode="POPS">
+  <instruction order="225" opcode="EQS"/>
+  <instruction order="226" opcode="NOTS"/>
+  <instruction order="227" opcode="POPS">
     <arg1 type="var">GF@%expResult</arg1>
   </instruction>
-  <instruction order="235" opcode="JUMPIFNEQ">
+  <instruction order="228" opcode="JUMPIFNEQ">
     <arg1 type="label">$main$0$if$else</arg1>
     <arg2 type="var">GF@%expResult</arg2>
     <arg3 type="bool">true</arg3>
   </instruction>
-  <instruction order="236" opcode="PUSHS">
+  <instruction order="229" opcode="PUSHS">
     <arg1 type="var">LF@%1%a</arg1>
   </instruction>
-  <instruction order="237" opcode="PUSHS">
+  <instruction order="230" opcode="PUSHS">
     <arg1 type="int">0</arg1>
   </instruction>
-  <instruction order="238" opcode="LTS"/>
-  <instruction order="239" opcode="POPS">
+  <instruction order="231" opcode="LTS"/>
+  <instruction order="232" opcode="POPS">
     <arg1 type="var">GF@%expResult</arg1>
   </instruction>
-  <instruction order="240" opcode="JUMPIFNEQ">
+  <instruction order="233" opcode="JUMPIFNEQ">
     <arg1 type="label">$main$1$if$else</arg1>
     <arg2 type="var">GF@%expResult</arg2>
     <arg3 type="bool">true</arg3>
   </instruction>
-  <instruction order="241" opcode="PUSHS">
+  <instruction order="234" opcode="PUSHS">
     <arg1 type="string">Faktorial\032nejde\032spocitat!</arg1>
   </instruction>
-  <instruction order="242" opcode="POPS">
+  <instruction order="235" opcode="POPS">
     <arg1 type="var">GF@%expResult</arg1>
   </instruction>
-  <instruction order="243" opcode="CREATEFRAME"/>
-  <instruction order="244" opcode="DEFVAR">
+  <instruction order="236" opcode="CREATEFRAME"/>
+  <instruction order="237" opcode="DEFVAR">
     <arg1 type="var">TF@%0</arg1>
   </instruction>
-  <instruction order="245" opcode="MOVE">
+  <instruction order="238" opcode="MOVE">
     <arg1 type="var">TF@%0</arg1>
     <arg2 type="var">GF@%expResult</arg2>
   </instruction>
-  <instruction order="246" opcode="CALL">
+  <instruction order="239" opcode="CALL">
     <arg1 type="label">$write</arg1>
   </instruction>
-  <instruction order="247" opcode="PUSHS">
+  <instruction order="240" opcode="PUSHS">
     <arg1 type="string">\010</arg1>
   </instruction>
-  <instruction order="248" opcode="POPS">
+  <instruction order="241" opcode="POPS">
     <arg1 type="var">GF@%expResult</arg1>
   </instruction>
-  <instruction order="249" opcode="CREATEFRAME"/>
-  <instruction order="250" opcode="DEFVAR">
+  <instruction order="242" opcode="CREATEFRAME"/>
+  <instruction order="243" opcode="DEFVAR">
     <arg1 type="var">TF@%0</arg1>
   </instruction>
-  <instruction order="251" opcode="MOVE">
+  <instruction order="244" opcode="MOVE">
     <arg1 type="var">TF@%0</arg1>
     <arg2 type="var">GF@%expResult</arg2>
   </instruction>
-  <instruction order="252" opcode="CALL">
+  <instruction order="245" opcode="CALL">
     <arg1 type="label">$write</arg1>
   </instruction>
-  <instruction order="253" opcode="JUMP">
+  <instruction order="246" opcode="JUMP">
     <arg1 type="label">$main$1$if$end</arg1>
   </instruction>
-  <instruction order="254" opcode="LABEL">
+  <instruction order="247" opcode="LABEL">
     <arg1 type="label">$main$1$if$else</arg1>
   </instruction>
-  <instruction order="255" opcode="DEFVAR">
+  <instruction order="248" opcode="DEFVAR">
     <arg1 type="var">LF@%3%vysl</arg1>
   </instruction>
-  <instruction order="256" opcode="MOVE">
+  <instruction order="249" opcode="MOVE">
     <arg1 type="var">LF@%3%vysl</arg1>
     <arg2 type="int">0</arg2>
+  </instruction>
+  <instruction order="250" opcode="CREATEFRAME"/>
+  <instruction order="251" opcode="DEFVAR">
+    <arg1 type="var">TF@%0</arg1>
+  </instruction>
+  <instruction order="252" opcode="MOVE">
+    <arg1 type="var">TF@%0</arg1>
+    <arg2 type="var">LF@%1%a</arg2>
+  </instruction>
+  <instruction order="253" opcode="CALL">
+    <arg1 type="label">$factorial</arg1>
+  </instruction>
+  <instruction order="254" opcode="MOVE">
+    <arg1 type="var">LF@%3%vysl</arg1>
+    <arg2 type="var">TF@%1%retval0</arg2>
+  </instruction>
+  <instruction order="255" opcode="PUSHS">
+    <arg1 type="string">Vysledek\032je\032</arg1>
+  </instruction>
+  <instruction order="256" opcode="POPS">
+    <arg1 type="var">GF@%expResult</arg1>
   </instruction>
   <instruction order="257" opcode="CREATEFRAME"/>
   <instruction order="258" opcode="DEFVAR">
@@ -822,105 +824,84 @@
   </instruction>
   <instruction order="259" opcode="MOVE">
     <arg1 type="var">TF@%0</arg1>
-    <arg2 type="var">LF@%1%a</arg2>
+    <arg2 type="var">GF@%expResult</arg2>
   </instruction>
   <instruction order="260" opcode="CALL">
-    <arg1 type="label">$factorial</arg1>
+    <arg1 type="label">$write</arg1>
   </instruction>
-  <instruction order="261" opcode="MOVE">
+  <instruction order="261" opcode="PUSHS">
     <arg1 type="var">LF@%3%vysl</arg1>
-    <arg2 type="var">TF@%1%retval0</arg2>
   </instruction>
-  <instruction order="262" opcode="PUSHS">
-    <arg1 type="string">Vysledek\032je\032</arg1>
-  </instruction>
-  <instruction order="263" opcode="POPS">
+  <instruction order="262" opcode="POPS">
     <arg1 type="var">GF@%expResult</arg1>
   </instruction>
-  <instruction order="264" opcode="CREATEFRAME"/>
-  <instruction order="265" opcode="DEFVAR">
+  <instruction order="263" opcode="CREATEFRAME"/>
+  <instruction order="264" opcode="DEFVAR">
     <arg1 type="var">TF@%0</arg1>
   </instruction>
-  <instruction order="266" opcode="MOVE">
+  <instruction order="265" opcode="MOVE">
     <arg1 type="var">TF@%0</arg1>
     <arg2 type="var">GF@%expResult</arg2>
   </instruction>
-  <instruction order="267" opcode="CALL">
+  <instruction order="266" opcode="CALL">
     <arg1 type="label">$write</arg1>
   </instruction>
-  <instruction order="268" opcode="PUSHS">
-    <arg1 type="var">LF@%3%vysl</arg1>
-  </instruction>
-  <instruction order="269" opcode="POPS">
-    <arg1 type="var">GF@%expResult</arg1>
-  </instruction>
-  <instruction order="270" opcode="CREATEFRAME"/>
-  <instruction order="271" opcode="DEFVAR">
-    <arg1 type="var">TF@%0</arg1>
-  </instruction>
-  <instruction order="272" opcode="MOVE">
-    <arg1 type="var">TF@%0</arg1>
-    <arg2 type="var">GF@%expResult</arg2>
-  </instruction>
-  <instruction order="273" opcode="CALL">
-    <arg1 type="label">$write</arg1>
-  </instruction>
-  <instruction order="274" opcode="PUSHS">
+  <instruction order="267" opcode="PUSHS">
     <arg1 type="string">\010</arg1>
   </instruction>
-  <instruction order="275" opcode="POPS">
+  <instruction order="268" opcode="POPS">
     <arg1 type="var">GF@%expResult</arg1>
   </instruction>
-  <instruction order="276" opcode="CREATEFRAME"/>
-  <instruction order="277" opcode="DEFVAR">
+  <instruction order="269" opcode="CREATEFRAME"/>
+  <instruction order="270" opcode="DEFVAR">
     <arg1 type="var">TF@%0</arg1>
   </instruction>
-  <instruction order="278" opcode="MOVE">
+  <instruction order="271" opcode="MOVE">
     <arg1 type="var">TF@%0</arg1>
     <arg2 type="var">GF@%expResult</arg2>
   </instruction>
-  <instruction order="279" opcode="CALL">
+  <instruction order="272" opcode="CALL">
     <arg1 type="label">$write</arg1>
   </instruction>
-  <instruction order="280" opcode="LABEL">
+  <instruction order="273" opcode="LABEL">
     <arg1 type="label">$main$1$if$end</arg1>
   </instruction>
-  <instruction order="281" opcode="JUMP">
+  <instruction order="274" opcode="JUMP">
     <arg1 type="label">$main$0$if$end</arg1>
   </instruction>
-  <instruction order="282" opcode="LABEL">
+  <instruction order="275" opcode="LABEL">
     <arg1 type="label">$main$0$if$else</arg1>
   </instruction>
-  <instruction order="283" opcode="PUSHS">
+  <instruction order="276" opcode="PUSHS">
     <arg1 type="string">Chyba\032pri\032nacitani\032celeho\032cisla!\010</arg1>
   </instruction>
-  <instruction order="284" opcode="POPS">
+  <instruction order="277" opcode="POPS">
     <arg1 type="var">GF@%expResult</arg1>
   </instruction>
-  <instruction order="285" opcode="CREATEFRAME"/>
-  <instruction order="286" opcode="DEFVAR">
+  <instruction order="278" opcode="CREATEFRAME"/>
+  <instruction order="279" opcode="DEFVAR">
     <arg1 type="var">TF@%0</arg1>
   </instruction>
-  <instruction order="287" opcode="MOVE">
+  <instruction order="280" opcode="MOVE">
     <arg1 type="var">TF@%0</arg1>
     <arg2 type="var">GF@%expResult</arg2>
   </instruction>
-  <instruction order="288" opcode="CALL">
+  <instruction order="281" opcode="CALL">
     <arg1 type="label">$write</arg1>
   </instruction>
-  <instruction order="289" opcode="LABEL">
+  <instruction order="282" opcode="LABEL">
     <arg1 type="label">$main$0$if$end</arg1>
   </instruction>
-  <instruction order="290" opcode="LABEL">
+  <instruction order="283" opcode="LABEL">
     <arg1 type="label">$main$ret</arg1>
   </instruction>
-  <instruction order="291" opcode="POPFRAME"/>
-  <instruction order="292" opcode="RETURN"/>
-  <instruction order="293" opcode="LABEL">
+  <instruction order="284" opcode="POPFRAME"/>
+  <instruction order="285" opcode="RETURN"/>
+  <instruction order="286" opcode="LABEL">
     <arg1 type="label">$over$main</arg1>
   </instruction>
-  <instruction order="294" opcode="CREATEFRAME"/>
-  <instruction order="295" opcode="CALL">
+  <instruction order="287" opcode="CREATEFRAME"/>
+  <instruction order="288" opcode="CALL">
     <arg1 type="label">$main</arg1>
   </instruction>
 </program>
