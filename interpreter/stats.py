@@ -44,18 +44,17 @@ class Stats:
 
     def __findTheHottest(self):
         '''
-        Finds the most used instruction, if there are many with the same number of use, finds one that appeared earlier in code.
+        Finds the most used instruction, if there are many with the same number of use, finds the one that appeared earlier in the code.
         Returns order.
         '''
         return list(sorted(list(self.hotInstructions.items()), key=lambda x: (x[1][0], 1/x[1][1]), reverse=True))[0][1][0] # too lon' :(
 
     def writeStats(self):
+        if not self.statsGroups:
+            return
         self.hot = self.__findTheHottest()
         print(self.statsGroups)
         for fileName in self.statsGroups:
-            if fileName is None:
-                continue
-            print(fileName)
             file = open(fileName, 'w')
             statsText = ''
             for stat in self.statsGroups[fileName]:

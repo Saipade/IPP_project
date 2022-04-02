@@ -56,13 +56,6 @@
             array_push($this->labelIds, $label);
         }
 
-        /**
-         * Special case for RETURN instruction; other jumps are handled by addJump method 
-         */ 
-        public function incJumps() {
-            $this->jumps++;
-        }
-
         public function addJump($label) {
             array_push($this->jumpDestinations, $label);
             if (array_search($label, $this->labelIds))

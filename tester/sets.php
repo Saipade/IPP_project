@@ -9,15 +9,8 @@
  */
 
     // array of possible options
-    $options = array(                      
-        "help",
-        "directory:",
-        "recursive",
-        "labels",
-        "jumps",
-        "fwjumps",
-        "backjumps",
-        "badjumps"    
-    );
+    $options = ["help", "directory:", "recursive", "labels", "jumps", "fwjumps", "backjumps", "badjumps"];
+    // help message
+    $help = "";
 
 ?>

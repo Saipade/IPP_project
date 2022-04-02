@@ -262,6 +262,15 @@ MOVE TF@%0 GF@%expResult
 CALL $write
 DEFVAR LF@%1%a
 MOVE LF@%1%a int@0
+# start
+CREATEFRAME
+CALL $readi
+MOVE LF@%1%a TF@%1%retval0
+CREATEFRAME
+DEFVAR TF@%0
+MOVE TF@%0 GF@%expResult
+CALL $write
+# end
 CREATEFRAME
 CALL $readi
 MOVE LF@%1%a TF@%1%retval0

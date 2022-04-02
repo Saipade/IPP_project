@@ -23,13 +23,13 @@ class Label(Argument):
         if self.type != 'label':
             exit(ERR_TYPES)
         self.value = xmlArgument.text
-
+    # debug
     def __str__(self):
         return f'{self.value}'
 
 class Symbol(Argument):
     '''
-    Subclass representing symbol (can be either constantor variable)
+    Subclass representing symbol (can be either constant or variable)
     '''
     def __init__(self, xmlArgument):
         if xmlArgument is None:
@@ -41,9 +41,12 @@ class Symbol(Argument):
         elif self.type == 'string':
             self.suffix, self.value = self.type, xmlArgument.text
         elif self.type == 'int':
-            self.suffix, self.value = self.type, int(xmlArgument.text)
+            try:
+                self.suffix, self.value = self.type, int(xmlArgument.text)
+            except:
+                exit(ERR_STRUCT)
         elif self.type == 'nil':
-            self.suffix, self.value = self.type, xmlArgument.text
+            self.suffix, self.value = self.type, None
         elif self.type == 'bool':
             self.suffix = self.type
             if xmlArgument.text == 'true': self.value = True
@@ -58,7 +61,7 @@ class Symbol(Argument):
     def getData(self, *retvalsSTR):
         retvals = [getattr(self, attr) for attr in retvalsSTR]
         return retvals
-
+    # debug
     def __str__(self):
         return f'{self.suffix}@{self.id}:{self.type}@{self.value}'
 
@@ -82,7 +85,7 @@ class Variable(Argument):
     def getData(self, *retvalsSTR):
         retvals = [getattr(self, attr) for attr in retvalsSTR]
         return retvals
-
+    # debug
     def __str__(self):
         return f'{self.suffix}@{self.id}:{self.type}@{self.value}'
 
@@ -97,6 +100,6 @@ class Type(Argument):
         if self.type != 'type':
             exit(ERR_TYPES)
         self.value = xmlArgument.text
-
+    # debug
     def __str__(self):
         return f'{self.value}'

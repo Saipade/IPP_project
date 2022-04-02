@@ -36,6 +36,8 @@
 
         public function __construct($id) {
             $id = explode("@", $id, 2);
+            if (!preg_match(framePattern, $id[0]))
+                exit(ERR_SYNTAX);
             if (!preg_match(varPattern, $id[1]))
                 exit(ERR_SYNTAX);
             $this->type = "var";
