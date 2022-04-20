@@ -5,7 +5,7 @@ import getopt
 import sys
 import re
 
-from instruction import *
+from instruction import Instruction
 from sets import *
 from errorslist import *
 from stats import Stats
@@ -19,7 +19,6 @@ class Interpreter:
         self.orders = []                                # list of orders (no duplicates, all should be positive)
 
         self.stats = Stats()                            # Stats class attribute
-        self.factory = Factory()                        # Factory class attribute
 
         self.GFrame = {}                                # dictionary of global frame variables of shape <varID> -> Argument class object
         self.LFrame = {}                                # dictionary on top of framesStack of shape <varID> -> Argument class object
@@ -74,7 +73,6 @@ class Interpreter:
         # no input and no source -> error
         if sIsPresent == 0 and iIsPresent == 0:
             exit(ERR_PARAM)
-            
         self.__readFile(xmlFile)
 
     def __readFile(self, xmlFile):
@@ -104,7 +102,7 @@ class Interpreter:
         second - executes instructions
         '''
         for _, xmlInstruction in enumerate(self.xmlTree):
-            self.currentInstruction = self.factory.createInstruction(xmlInstruction)
+            self.currentInstruction = Instruction(xmlInstruction)
             if self.currentInstruction.order in self.orders or self.currentInstruction.order < 1:
                 exit(ERR_STRUCT)
             self.orders.append(self.currentInstruction.order)
@@ -114,7 +112,8 @@ class Interpreter:
 
         self.currentLine = 0
         while True:
-            self.currentInstruction = self.factory.createInstruction(self.xmlTree[self.currentLine])
+            self.currentInstruction = Instruction(self.xmlTree[self.currentLine])
+            #print(self.currentInstruction)
             getattr(self, 'exec'+self.currentInstruction.opCode)()
             self.stats.updateInsts(self.currentInstruction)
             self.stats.updateHot(self.currentInstruction)
@@ -158,7 +157,7 @@ class Interpreter:
                 exit(ERR_TYPES)
             if len(opVal1) <= opVal2 or opVal2 < 0:
                 exit(ERR_STRING)
-
+                
         return opVal1, opVal2
     
     def __getType(self, op):
@@ -193,6 +192,7 @@ class Interpreter:
             exit(ERR_NOFRAME)
         return frame
         
+
     def __findInFrame(self, frame, id):
         try:
             type, value = getattr(self, frame+'rame')[id].getData('type', 'value')
@@ -221,18 +221,11 @@ class Interpreter:
                 exit(ERR_NOFRAME)
             self.TFrame = self.LFrame
             self.LFrame = {}
-            if self.TFrame is None:
-                self.stats.updateVars(-self.stats.currentVars)
-            else:
-                self.stats.updateVars(len(self.TFrame)-self.stats.currentVars)
+            self.stats.updateVars(len(self.TFrame)-self.stats.currentVars)
             return
         self.TFrame = self.LFrame
         self.LFrame = self.framesStack.pop()
-        if self.TFrame is None: # len(None) causes error
-            self.stats.updateVars(len(self.GFrame)+len(self.LFrame)-self.stats.currentVars)
-        else: 
-            self.stats.updateVars(len(self.GFrame)+len(self.TFrame)+len(self.LFrame)-self.stats.currentVars)
-
+        self.stats.updateVars(len(self.GFrame)+len(self.TFrame)+len(self.LFrame)-self.stats.currentVars)
     
     def execRETURN(self):
         if len(self.callStack) == 0:
@@ -250,10 +243,7 @@ class Interpreter:
         try:
             self.callStack.append(self.currentLine)
             self.currentLine = self.labelList[self.currentInstruction.args[0].value]
-            if self.TFrame is None: # len(None) causes error
-                self.stats.updateVars(len(self.GFrame)-self.stats.currentVars)
-            else:
-                self.stats.updateVars(len(self.GFrame)+len(self.TFrame)-self.stats.currentVars)
+            self.stats.updateVars(len(self.GFrame)+len(self.TFrame)-self.stats.currentVars)
         except KeyError: # label does not exist
             exit(ERR_SEMAN)
 
@@ -405,11 +395,12 @@ class Interpreter:
     def execMOVE(self):
         frame, id = self.currentInstruction.args[0].getData('suffix', 'id')
         type, value, id1 = self.currentInstruction.args[1].getData('suffix', 'value', 'id')
-        #print("MOVE ", frame, "@", id, " ", type, "@", id1)
         frame = self.__findFrame(frame)
         if type in ('GF', 'LF', 'TF'): # if variable -> find in given frame
             type, value = self.__findInFrame(type, id1)
         try:
+            if value is None:
+                exit(ERR_UNDEFVAR)
             frame[id].set({'value' : value, 'type' : type})
         except KeyError: 
             exit(ERR_UNDECLVAR)

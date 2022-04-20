@@ -14,7 +14,6 @@
     $tester->parseArguments();
     $tester->test();
     $tester->constructHTML();
-    $tester->printHTML();
 
     return TEST_OK;
 

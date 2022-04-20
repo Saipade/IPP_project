@@ -50,7 +50,7 @@ class Stats:
         return list(sorted(list(self.hotInstructions.items()), key=lambda x: (x[1][0], 1/x[1][1]), reverse=True))[0][1][0] # too lon' :(
 
     def writeStats(self):
-        if not self.statsGroups: # if there is no file given -- don't print stats
+        if not self.statsGroups:
             return
         self.hot = self.__findTheHottest()
         print(self.statsGroups)
