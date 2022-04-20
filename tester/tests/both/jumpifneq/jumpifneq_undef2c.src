@@ -1,5 +1,0 @@
-.IPPcode21
-
-LABEL aaa
-
-JUMPIFNEQ aaa LF@undefined int@2

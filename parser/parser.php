@@ -8,6 +8,7 @@
  * File contains implementation of Parser class
  */
 
+    include 'sets.php';
     /**
      * Parser class, parses args and input, converts it to XML
      */

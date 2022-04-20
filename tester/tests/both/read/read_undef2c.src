@@ -1,6 +1,0 @@
-.IPPcode21
-
-CREATEFRAME
-PUSHFRAME
-
-READ TF@a int
